@@ -1,0 +1,8 @@
+file_format: "$ZMK_CONFIG_YML_SCHEMA"
+id: app_layer
+name: PandaKB App Layer
+type: shield
+url: https://github.com/Penguinchat/zmk-for-PandaKB.com-
+requires: []
+features:
+  - studio

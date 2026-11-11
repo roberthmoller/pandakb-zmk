@@ -1,0 +1,27 @@
+menuconfig PANDAKB_APP_LAYER
+	bool "PandaKB app companion (Raw HID layer + badge)"
+	default n
+	help
+	  Accept host Raw HID commands to sticky-switch layers and set a
+	  game badge that can be shown on the peripheral OLED.
+
+if PANDAKB_APP_LAYER
+
+config PANDAKB_APP_LAYER_RAW_HID
+	bool "Handle Raw HID layer/badge commands"
+	default y
+	depends on RAW_HID
+	help
+	  Listen for Raw HID reports on the central and apply layer_to /
+	  set_badge commands.
+
+config PANDAKB_GAME_BADGE_SCREEN
+	bool "Custom status screen: game badge"
+	default n
+	depends on ZMK_DISPLAY
+	select ZMK_DISPLAY_STATUS_SCREEN_CUSTOM
+	help
+	  Replace the status screen with a large game-badge wordmark
+	  (idle / WoW / LoL). Intended for the right/peripheral OLED.
+
+endif # PANDAKB_APP_LAYER

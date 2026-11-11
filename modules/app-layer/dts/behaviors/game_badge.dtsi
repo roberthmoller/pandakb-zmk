@@ -1,0 +1,15 @@
+/*
+ * Copyright (c) 2026 PandaKB
+ * SPDX-License-Identifier: MIT
+ */
+
+/ {
+    behaviors {
+        /* <= 8 chars required for global-locality split invoke */
+        badge: badge {
+            compatible = "zmk,behavior-game-badge";
+            #binding-cells = <1>;
+            display-name = "Game Badge";
+        };
+    };
+};

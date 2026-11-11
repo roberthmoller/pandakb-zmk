@@ -1,0 +1,19 @@
+if SHIELD_GAME_BADGE
+
+config PANDAKB_APP_LAYER
+	default y
+
+config PANDAKB_GAME_BADGE_SCREEN
+	default y
+
+config ZMK_DISPLAY
+	default y
+
+config ZMK_DISPLAY_STATUS_SCREEN_CUSTOM
+	default y
+
+# Avoid fighting the built-in screen selection
+config ZMK_DISPLAY_STATUS_SCREEN_BUILT_IN
+	default n
+
+endif # SHIELD_GAME_BADGE

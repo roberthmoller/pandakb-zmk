@@ -1,0 +1,8 @@
+if(CONFIG_PANDAKB_APP_LAYER)
+  zephyr_library()
+  zephyr_include_directories(include)
+  zephyr_library_sources(src/badge_state.c)
+  zephyr_library_sources(src/behavior_game_badge.c)
+  zephyr_library_sources_ifdef(CONFIG_PANDAKB_APP_LAYER_RAW_HID src/raw_hid_commands.c)
+  zephyr_library_sources_ifdef(CONFIG_PANDAKB_GAME_BADGE_SCREEN src/badge_screen.c)
+endif()

@@ -1,0 +1,9 @@
+if SHIELD_APP_LAYER
+
+config PANDAKB_APP_LAYER
+	default y
+
+config PANDAKB_APP_LAYER_RAW_HID
+	default y if RAW_HID
+
+endif # SHIELD_APP_LAYER
