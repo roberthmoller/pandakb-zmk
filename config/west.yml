@@ -59,8 +59,5 @@ manifest:
     - name: zmk-raw-hid
       remote: zzeneg
       revision: main
-    # Local module (already in this repo)
-    - name: pandakb-app-layer
-      path: modules/app-layer
   self:
     path: config

@@ -1,3 +1,7 @@
+name: pandakb-zmk
 build:
+  cmake: modules/app-layer
+  kconfig: modules/app-layer/Kconfig
   settings:
     board_root: .
+    dts_root: modules/app-layer
