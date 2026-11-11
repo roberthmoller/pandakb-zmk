@@ -10,24 +10,23 @@
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/rgb.h>
 
+#define BASE 0
+#define LOWER 1
+#define RAISE 2
+#define ADJUST 3
+#define WOW 4
+#define LOL 5
+
 / {
-    // Activate ADJUST layer by pressing raise and lower
+    // Hold LOWER + RAISE together to activate ADJUST (tri-layer).
+    // Do not bind &mo ADJUST — conditional_layers owns that layer.
 
     conditional_layers {
         compatible = "zmk,conditional-layers";
 
-        adjust_layer {
-            if-layers = <1 2>;
-            then-layer = <3>;
-        };
-    };
-
-    combos {
-        compatible = "zmk,combos";
-
-        shift_uppper {
-            bindings = <&mo 3>;
-            key-positions = <36 52>;
+        tri_layer {
+            if-layers = <LOWER RAISE>;
+            then-layer = <ADJUST>;
         };
     };
 
@@ -35,6 +34,7 @@
         compatible = "zmk,keymap";
 
         default_layer {
+            display-name = "Base";
             // ------------------------------------------------------------------------------------------------------------
             // |  ESC  |  1  |  2  |  3   |  4   |  5   |                   |  6   |  7    |  8    |  9   |   0   |   `   |
             // |  TAB  |  Q  |  W  |  E   |  R   |  T   |                   |  Y   |  U    |  I    |  O   |   P   |   -   |
@@ -47,38 +47,49 @@
 &kp TAB    &kp Q   &kp W   &kp E     &kp R     &kp T                                  &kp Y   &kp U     &kp I      &kp O    &kp P     &kp MINUS
 &kp LCTRL  &kp A   &kp S   &kp D     &kp F     &kp G                                  &kp H   &kp J     &kp K      &kp L    &kp SEMI  &kp SQT
 &kp LSHFT  &kp Z   &kp X   &kp C     &kp V     &kp B   &kp C_MUTE    &rgb_ug RGB_TOG  &kp N   &kp M     &kp COMMA  &kp DOT  &kp FSLH  &kp RSHFT
-                           &kp LALT  &kp LGUI  &mo 1   &kp SPACE     &kp RET          &mo 2   &kp BSPC  &kp RGUI
+                           &kp LALT  &kp LGUI  &mo LOWER &kp SPACE   &kp RET          &mo RAISE &kp BSPC &kp RGUI
             >;
 
             sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
         };
 
         lower_layer {
+            display-name = "Lower";
+            // Symbols + media. Hold with RAISE for ADJUST.
             // ------------------------------------------------------------------------------------------------------------
-            // | media |     |     |      |      |      |                   | prev | pause | next  | mute | vol-  | vol+  |
-            // |  F1   |  F2 |  F3 |  F4  |  F5  |  F6  |                   |  F7  |  F8   |  F9   |  F10 |  F11  |  F12  |
+            // |       |     |     |      |      |      |                   | prev | pause | next  | mute | vol-  | vol+  |
             // |   `   |  !  |  @  |  #   |  $   |  %   |                   |  ^   |  &    |  *    |  (   |   )   |   ~   |
-            // |EXTPWR |     |     |      |      |      |        |  |       |      |  _    |  +    |  {   |   }   |  "|"  |
-            //                     |      |      |      |        |  |       | ADJ  |       |       |
+            // |       |  _  |  +  |  {   |  }   |  |   |                   |  -   |  =    |  [    |  ]   |   \   |       |
+            // |EXTPWR | ON  | OFF | TOG  |      |      |        |  |       |      |       |       |      |       |       |
+            //                     |      |      |      |        |  |       |      |       |       |
 
             bindings = <
-&trans     &trans            &trans             &trans             &trans      &trans                       &kp C_PREVIOUS  &kp C_PAUSE  &kp C_NEXT  &kp K_MUTE  &kp C_VOL_DN  &kp C_VOL_UP
-&kp F1     &kp F2            &kp F3             &kp F4             &kp F5      &kp F6                       &kp F7          &kp F8       &kp F9      &kp F10     &kp F11       &kp F12
-&kp GRAVE  &kp EXCL          &kp AT             &kp HASH           &kp DOLLAR  &kp PRCNT                    &kp CARET       &kp AMPS     &kp ASTRK   &kp LPAR    &kp RPAR      &kp TILDE
-&trans     &ext_power EP_ON  &ext_power EP_OFF  &ext_power EP_TOG  &trans      &trans     &trans    &trans  &trans          &kp MINUS    &kp PLUS    &kp LBRC    &kp RBRC      &kp PIPE
-                                                &trans             &trans      &trans     &trans    &trans  &mo 3           &trans       &trans
+&trans             &trans            &trans             &trans             &trans      &trans                       &kp C_PREVIOUS  &kp C_PAUSE  &kp C_NEXT  &kp K_MUTE  &kp C_VOL_DN  &kp C_VOL_UP
+&kp GRAVE          &kp EXCL          &kp AT             &kp HASH           &kp DOLLAR  &kp PRCNT                    &kp CARET       &kp AMPS     &kp ASTRK   &kp LPAR    &kp RPAR      &kp TILDE
+&trans             &kp UNDER         &kp PLUS           &kp LBRC           &kp RBRC    &kp PIPE                     &kp MINUS       &kp EQUAL    &kp LBKT    &kp RBKT    &kp BSLH      &trans
+&ext_power EP_TOG  &ext_power EP_ON  &ext_power EP_OFF  &ext_power EP_TOG  &trans      &trans     &trans    &trans  &trans          &trans       &trans      &trans      &trans        &trans
+                                                &trans             &trans      &trans     &trans    &trans  &trans          &trans       &trans
             >;
 
             sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
         };
 
-        upper_layer {
+        raise_layer {
+            display-name = "Raise";
+            // F-keys + navigation. Hold with LOWER for ADJUST.
+            // ------------------------------------------------------------------------------------------------------------
+            // |       |     |     |      |      |      |                   |      |       |       |      |       |       |
+            // |  F1   | F2  | F3  | F4   | F5   | F6   |                   | F7   | F8    | F9    | F10  | F11   | F12   |
+            // |       |     |     |      |      |      |                   | LEFT | DOWN  | UP    | RGHT | HOME  | END   |
+            // |       |     |     |      |      |      |        |  |       |      | PGUP  | PGDN  | INS  | DEL   |       |
+            //                     |      |      |      |        |  |       |      |       |       |
+
             bindings = <
-&trans     &trans            &trans             &trans             &trans      &trans                       &trans          &trans          &trans        &trans     &trans    &trans
-&kp F1     &kp F2            &kp F3             &kp F4             &kp F5      &kp F6                       &kp F7          &kp F8          &kp F9        &kp F10    &kp F11   &kp F12
-&kp GRAVE  &kp EXCL          &kp AT             &kp HASH           &kp DOLLAR  &kp PRCNT                    &kp LEFT_ARROW  &kp DOWN_ARROW  &kp UP_ARROW  &kp RIGHT  &kp RPAR  &kp TILDE
-&trans     &ext_power EP_ON  &ext_power EP_OFF  &ext_power EP_TOG  &trans      &trans     &trans    &trans  &trans          &kp MINUS       &kp PLUS      &kp LBRC   &kp RBRC  &kp PIPE
-                                                &trans             &trans      &mo 3      &trans    &trans  &trans          &trans          &trans
+&trans  &trans  &trans  &trans  &trans  &trans                       &trans     &trans     &trans   &trans    &trans   &trans
+&kp F1  &kp F2  &kp F3  &kp F4  &kp F5  &kp F6                       &kp F7     &kp F8     &kp F9   &kp F10   &kp F11  &kp F12
+&trans  &trans  &trans  &trans  &trans  &trans                       &kp LEFT   &kp DOWN   &kp UP   &kp RIGHT &kp HOME &kp END
+&trans  &trans  &trans  &trans  &trans  &trans     &trans    &trans  &trans     &kp PG_UP  &kp PG_DN &kp INS  &kp DEL  &trans
+                        &trans  &trans  &trans     &trans    &trans  &trans     &trans     &trans
             >;
 
             sensor-bindings =
@@ -87,31 +98,67 @@
         };
 
         adjust_layer {
+            display-name = "Adjust";
+            // BT / RGB / sticky game layers. Active only while LOWER+RAISE are held.
             // ----------------------------------------------------------------------------------------------------------------------------
-            // | BTCLR  |  BT1    |  BT2    |   BT3   |   BT4   |   BT5   |                  | WOW  |      |       |      |       | BASE  |
+            // | BTCLR  |  BT1    |  BT2    |   BT3   |   BT4   |   BT5   |                  | WOW  | LOL  |       |      |       | BASE  |
             // | EXTPWR | RGB_HUD | RGB_HUI | RGB_SAD | RGB_SAI | RGB_EFF |                  |      |      |       |      |       |       |
             // |        | RGB_BRD | RGB_BRI |         |         |         |                  |      |      |       |      |       |       |
             // |        |         |         |         |         |         | RGB_TOG | |      |      |      |       |      |       |       |
             //                    |         |         |         |         |         | |      |      |      |       |
 
             bindings = <
-&bt BT_CLR         &bt BT_SEL 0      &bt BT_SEL 1       &bt BT_SEL 2       &bt BT_SEL 3     &bt BT_SEL 4                       &to 4   &trans  &trans  &trans  &trans  &to 0
-&ext_power EP_TOG  &rgb_ug RGB_HUD   &rgb_ug RGB_HUI    &rgb_ug RGB_SAD    &rgb_ug RGB_SAI  &rgb_ug RGB_EFF                    &trans  &trans  &trans  &trans  &trans  &trans
-&trans             &rgb_ug RGB_BRD   &rgb_ug RGB_BRI    &trans             &kp A            &trans                             &trans  &trans  &trans  &trans  &trans  &trans
-&trans             &ext_power EP_ON  &ext_power EP_OFF  &ext_power EP_TOG  &trans           &trans           &trans    &trans  &trans  &trans  &trans  &trans  &trans  &trans
-                                                        &trans             &trans           &trans           &trans    &trans  &trans  &trans  &trans
+&bt BT_CLR         &bt BT_SEL 0     &bt BT_SEL 1     &bt BT_SEL 2     &bt BT_SEL 3     &bt BT_SEL 4                       &to WOW  &to LOL  &trans  &trans  &trans  &to BASE
+&ext_power EP_TOG  &rgb_ug RGB_HUD  &rgb_ug RGB_HUI  &rgb_ug RGB_SAD  &rgb_ug RGB_SAI  &rgb_ug RGB_EFF                    &trans   &trans   &trans  &trans  &trans  &trans
+&trans             &rgb_ug RGB_BRD  &rgb_ug RGB_BRI  &trans           &trans           &trans                             &trans   &trans   &trans  &trans  &trans  &trans
+&trans             &trans           &trans           &trans           &trans           &trans           &trans    &trans  &trans   &trans   &trans  &trans  &trans  &trans
+                                                     &trans           &trans           &trans           &trans    &trans  &trans   &trans   &trans
             >;
 
             sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN>;
         };
 
-        wow {
+        wow_layer {
+            display-name = "WoW";
+            // WASD shifted one column right so movement sits on home-row fingers.
+            // Left column holds dedicated mods. Top-right corner returns to BASE.
+            // ------------------------------------------------------------------------------------------------------------
+            // |  ESC  |  1  |  2  |  3  |  4  |  5  |                   |  6  |  7  |  8  |  9  |  0  | BASE |
+            // |  TAB  |  `  |  Q  |  W  |  E  |  R  |                   |  T  |  Y  |  U  |  I  |  O  |  P   |
+            // | SHIFT | CTRL|  A  |  S  |  D  |  F  |                   |  G  |  H  |  J  |  K  |  L  |  ;   |
+            // |  ALT  |     |  Z  |  X  |  C  |  V  |  MUTE  |  |RGB   |  B  |  N  |  M  |  ,  |  .  |  /   |
+            //                     | GUI |     | CTRL| SPACE  |  | ENTER |     | BSPC | BASE |
+
             bindings = <
-&kp ESC    &kp N1  &kp N2  &kp N3    &kp N4    &kp N5                                 &kp N6  &kp N7    &kp N8     &kp N9   &kp N0    &kp GRAVE
-&kp TAB    &kp Q   &kp W   &kp E     &kp R     &kp T                                  &kp Y   &kp U     &kp I      &kp O    &kp P     &kp MINUS
-&kp LCTRL  &kp A   &kp S   &kp D     &kp F     &kp G                                  &kp H   &kp J     &kp K      &kp L    &kp SEMI  &kp SQT
-&kp LSHFT  &kp Z   &kp X   &kp C     &kp V     &kp B   &kp C_MUTE    &rgb_ug RGB_TOG  &kp N   &kp M     &kp COMMA  &kp DOT  &kp FSLH  &kp RSHFT
-                           &kp LALT  &kp LGUI  &mo 1   &kp SPACE     &kp RET          &mo 2   &kp BSPC  &kp RGUI
+&kp ESC    &kp N1     &kp N2  &kp N3  &kp N4  &kp N5                                 &kp N6  &kp N7  &kp N8     &kp N9   &kp N0    &to BASE
+&kp TAB    &kp GRAVE  &kp Q   &kp W   &kp E   &kp R                                  &kp T   &kp Y   &kp U      &kp I    &kp O     &kp P
+&kp LSHFT  &kp LCTRL  &kp A   &kp S   &kp D   &kp F                                  &kp G   &kp H   &kp J      &kp K    &kp L     &kp SEMI
+&kp LALT   &none      &kp Z   &kp X   &kp C   &kp V   &kp C_MUTE    &rgb_ug RGB_TOG  &kp B   &kp N   &kp M      &kp COMMA &kp DOT  &kp FSLH
+                              &kp LGUI &none  &kp LCTRL &kp SPACE   &kp RET          &none   &kp BSPC &to BASE
+            >;
+
+            sensor-bindings =
+                <&inc_dec_kp C_VOL_UP C_VOL_DN>,
+                <&inc_dec_kp PG_UP PG_DN>;
+        };
+
+        lol_layer {
+            display-name = "LoL";
+            // Standard LoL positions (QWER abilities, D/F summoners, B recall, P shop).
+            // Dedicated Alt/Ctrl for self-cast and ability ranking. Not WASD-shifted.
+            // ------------------------------------------------------------------------------------------------------------
+            // |  ESC  |  1  |  2  |  3  |  4  |  5  |                   |  6  |  7  |     |     |     | BASE |
+            // |  TAB  |  Q  |  W  |  E  |  R  |  T  |                   |  Y  |  U  |  I  |  O  |  P  |      |
+            // |  CTRL |  A  |  S  |  D  |  F  |  G  |                   |  H  |  J  |  K  |  L  |  ;  |      |
+            // | SHIFT |  Z  |  X  |  C  |  V  |  B  |  MUTE  |  |RGB   |  N  |  M  |  ,  |  .  |  /  |      |
+            //                     | ALT |     |     | SPACE  |  | ENTER |     | BSPC | BASE |
+
+            bindings = <
+&kp ESC    &kp N1  &kp N2  &kp N3  &kp N4  &kp N5                                 &kp N6  &kp N7  &trans     &trans   &trans   &to BASE
+&kp TAB    &kp Q   &kp W   &kp E   &kp R   &kp T                                  &kp Y   &kp U   &kp I      &kp O    &kp P    &trans
+&kp LCTRL  &kp A   &kp S   &kp D   &kp F   &kp G                                  &kp H   &kp J   &kp K      &kp L    &kp SEMI &trans
+&kp LSHFT  &kp Z   &kp X   &kp C   &kp V   &kp B   &kp C_MUTE    &rgb_ug RGB_TOG  &kp N   &kp M   &kp COMMA  &kp DOT  &kp FSLH &trans
+                           &kp LALT &none  &none   &kp SPACE     &kp RET          &none   &kp BSPC &to BASE
             >;
 
             sensor-bindings =
@@ -122,7 +169,5 @@
         extra1 { status = "reserved"; };
 
         extra2 { status = "reserved"; };
-
-        extra3 { status = "reserved"; };
     };
 };
