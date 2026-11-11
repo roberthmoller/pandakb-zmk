@@ -35,6 +35,7 @@
 
         default_layer {
             display-name = "Base";
+
             // ------------------------------------------------------------------------------------------------------------
             // |  ESC  |  1  |  2  |  3   |  4   |  5   |                   |  6   |  7    |  8    |  9   |   0   |   `   |
             // |  TAB  |  Q  |  W  |  E   |  R   |  T   |                   |  Y   |  U    |  I    |  O   |   P   |   -   |
@@ -43,11 +44,11 @@
             //                     | ALT  | GUI  | LOWER|  SPACE |  | ENTER | RAISE| BSPC  | GUI   |
 
             bindings = <
-&kp ESC    &kp N1  &kp N2  &kp N3    &kp N4    &kp N5                                 &kp N6  &kp N7    &kp N8     &kp N9   &kp N0    &kp GRAVE
-&kp TAB    &kp Q   &kp W   &kp E     &kp R     &kp T                                  &kp Y   &kp U     &kp I      &kp O    &kp P     &kp MINUS
-&kp LCTRL  &kp A   &kp S   &kp D     &kp F     &kp G                                  &kp H   &kp J     &kp K      &kp L    &kp SEMI  &kp SQT
-&kp LSHFT  &kp Z   &kp X   &kp C     &kp V     &kp B   &kp C_MUTE    &rgb_ug RGB_TOG  &kp N   &kp M     &kp COMMA  &kp DOT  &kp FSLH  &kp RSHFT
-                           &kp LALT  &kp LGUI  &mo LOWER &kp SPACE   &kp RET          &mo RAISE &kp BSPC &kp RGUI
+&kp ESC    &kp N1  &kp N2  &kp N3    &kp N4    &kp N5                                    &kp N6     &kp N7    &kp N8     &kp N9   &kp N0    &kp GRAVE
+&kp TAB    &kp Q   &kp W   &kp E     &kp R     &kp T                                     &kp Y      &kp U     &kp I      &kp O    &kp P     &kp MINUS
+&kp LCTRL  &kp A   &kp S   &kp D     &kp F     &kp G                                     &kp H      &kp J     &kp K      &kp L    &kp SEMI  &kp SQT
+&kp LSHFT  &kp Z   &kp X   &kp C     &kp V     &kp B      &kp C_MUTE    &rgb_ug RGB_TOG  &kp N      &kp M     &kp COMMA  &kp DOT  &kp FSLH  &kp RSHFT
+                           &kp LALT  &kp LGUI  &mo LOWER  &kp SPACE     &kp RET          &mo RAISE  &kp BSPC  &kp RGUI
             >;
 
             sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
@@ -55,6 +56,7 @@
 
         lower_layer {
             display-name = "Lower";
+
             // Symbols + media. Hold with RAISE for ADJUST.
             // ------------------------------------------------------------------------------------------------------------
             // |       |     |     |      |      |      |                   | prev | pause | next  | mute | vol-  | vol+  |
@@ -68,7 +70,7 @@
 &kp GRAVE          &kp EXCL          &kp AT             &kp HASH           &kp DOLLAR  &kp PRCNT                    &kp CARET       &kp AMPS     &kp ASTRK   &kp LPAR    &kp RPAR      &kp TILDE
 &trans             &kp UNDER         &kp PLUS           &kp LBRC           &kp RBRC    &kp PIPE                     &kp MINUS       &kp EQUAL    &kp LBKT    &kp RBKT    &kp BSLH      &trans
 &ext_power EP_TOG  &ext_power EP_ON  &ext_power EP_OFF  &ext_power EP_TOG  &trans      &trans     &trans    &trans  &trans          &trans       &trans      &trans      &trans        &trans
-                                                &trans             &trans      &trans     &trans    &trans  &trans          &trans       &trans
+                                                        &trans             &trans      &trans     &trans    &trans  &trans          &trans       &trans
             >;
 
             sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
@@ -76,6 +78,7 @@
 
         raise_layer {
             display-name = "Raise";
+
             // F-keys + navigation. Hold with LOWER for ADJUST.
             // ------------------------------------------------------------------------------------------------------------
             // |       |     |     |      |      |      |                   |      |       |       |      |       |       |
@@ -85,11 +88,11 @@
             //                     |      |      |      |        |  |       |      |       |       |
 
             bindings = <
-&trans  &trans  &trans  &trans  &trans  &trans                       &trans     &trans     &trans   &trans    &trans   &trans
-&kp F1  &kp F2  &kp F3  &kp F4  &kp F5  &kp F6                       &kp F7     &kp F8     &kp F9   &kp F10   &kp F11  &kp F12
-&trans  &trans  &trans  &trans  &trans  &trans                       &kp LEFT   &kp DOWN   &kp UP   &kp RIGHT &kp HOME &kp END
-&trans  &trans  &trans  &trans  &trans  &trans     &trans    &trans  &trans     &kp PG_UP  &kp PG_DN &kp INS  &kp DEL  &trans
-                        &trans  &trans  &trans     &trans    &trans  &trans     &trans     &trans
+&trans  &trans  &trans  &trans  &trans  &trans                    &trans    &trans     &trans     &trans     &trans    &trans
+&kp F1  &kp F2  &kp F3  &kp F4  &kp F5  &kp F6                    &kp F7    &kp F8     &kp F9     &kp F10    &kp F11   &kp F12
+&trans  &trans  &trans  &trans  &trans  &trans                    &kp LEFT  &kp DOWN   &kp UP     &kp RIGHT  &kp HOME  &kp END
+&trans  &trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans    &kp PG_UP  &kp PG_DN  &kp INS    &kp DEL   &trans
+                        &trans  &trans  &trans  &trans    &trans  &trans    &trans     &trans
             >;
 
             sensor-bindings =
@@ -99,6 +102,7 @@
 
         adjust_layer {
             display-name = "Adjust";
+
             // BT / RGB / sticky game layers. Active only while LOWER+RAISE are held.
             // ----------------------------------------------------------------------------------------------------------------------------
             // | BTCLR  |  BT1    |  BT2    |   BT3   |   BT4   |   BT5   |                  | WOW  | LOL  |       |      |       | BASE  |
@@ -120,6 +124,7 @@
 
         wow_layer {
             display-name = "WoW";
+
             // WASD shifted one column right so movement sits on home-row fingers.
             // Left column holds dedicated mods. Top-right corner returns to BASE.
             // ------------------------------------------------------------------------------------------------------------
@@ -130,11 +135,11 @@
             //                     | GUI |     | CTRL| SPACE  |  | ENTER |     | BSPC | BASE |
 
             bindings = <
-&kp ESC    &kp N1     &kp N2  &kp N3  &kp N4  &kp N5                                 &kp N6  &kp N7  &kp N8     &kp N9   &kp N0    &to BASE
-&kp TAB    &kp GRAVE  &kp Q   &kp W   &kp E   &kp R                                  &kp T   &kp Y   &kp U      &kp I    &kp O     &kp P
-&kp LSHFT  &kp LCTRL  &kp A   &kp S   &kp D   &kp F                                  &kp G   &kp H   &kp J      &kp K    &kp L     &kp SEMI
-&kp LALT   &none      &kp Z   &kp X   &kp C   &kp V   &kp C_MUTE    &rgb_ug RGB_TOG  &kp B   &kp N   &kp M      &kp COMMA &kp DOT  &kp FSLH
-                              &kp LGUI &none  &kp LCTRL &kp SPACE   &kp RET          &none   &kp BSPC &to BASE
+&kp ESC    &kp N1     &kp N2  &kp N3  &kp N4  &kp N5                                 &kp N6  &kp N7  &kp N8    &kp N9     &kp N0   &to BASE
+&kp TAB    &kp GRAVE  &kp Q   &kp W   &kp E   &kp R                                  &kp T   &kp Y   &kp U     &kp I      &kp O    &kp P
+&kp LSHFT  &kp LCTRL  &kp A   &kp S   &kp D   &kp F                                  &kp G   &kp H   &kp J     &kp K      &kp L    &kp SEMI
+&kp LALT   &none      &kp Z   &kp X   &kp C   &kp V   &kp C_MUTE    &rgb_ug RGB_TOG  &kp B   &kp N   &kp M     &kp COMMA  &kp DOT  &kp FSLH
+                              &trans  &trans  &trans  &kp SPACE     &kp RET          &trans  &trans  &to BASE
             >;
 
             sensor-bindings =
@@ -144,6 +149,7 @@
 
         lol_layer {
             display-name = "LoL";
+
             // Standard LoL positions (QWER abilities, D/F summoners, B recall, P shop).
             // Dedicated Alt/Ctrl for self-cast and ability ranking. Not WASD-shifted.
             // ------------------------------------------------------------------------------------------------------------
@@ -154,11 +160,11 @@
             //                     | ALT |     |     | SPACE  |  | ENTER |     | BSPC | BASE |
 
             bindings = <
-&kp ESC    &kp N1  &kp N2  &kp N3  &kp N4  &kp N5                                 &kp N6  &kp N7  &trans     &trans   &trans   &to BASE
-&kp TAB    &kp Q   &kp W   &kp E   &kp R   &kp T                                  &kp Y   &kp U   &kp I      &kp O    &kp P    &trans
-&kp LCTRL  &kp A   &kp S   &kp D   &kp F   &kp G                                  &kp H   &kp J   &kp K      &kp L    &kp SEMI &trans
-&kp LSHFT  &kp Z   &kp X   &kp C   &kp V   &kp B   &kp C_MUTE    &rgb_ug RGB_TOG  &kp N   &kp M   &kp COMMA  &kp DOT  &kp FSLH &trans
-                           &kp LALT &none  &none   &kp SPACE     &kp RET          &none   &kp BSPC &to BASE
+&kp ESC    &kp N1  &kp N2  &kp N3  &kp N4  &kp N5                                 &kp N6  &kp N7  &trans     &trans   &trans    &to BASE
+&kp TAB    &kp Q   &kp W   &kp E   &kp R   &kp T                                  &kp Y   &kp U   &kp I      &kp O    &kp P     &trans
+&kp LCTRL  &kp A   &kp S   &kp D   &kp F   &kp G                                  &kp H   &kp J   &kp K      &kp L    &kp SEMI  &trans
+&kp LSHFT  &kp Z   &kp X   &kp C   &kp V   &kp B   &kp C_MUTE    &rgb_ug RGB_TOG  &kp N   &kp M   &kp COMMA  &kp DOT  &kp FSLH  &trans
+                           &trans  &trans  &trans  &kp SPACE     &kp RET          &trans  &trans  &to BASE
             >;
 
             sensor-bindings =
