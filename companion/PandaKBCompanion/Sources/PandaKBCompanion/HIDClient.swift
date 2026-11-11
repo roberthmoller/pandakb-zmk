@@ -13,6 +13,8 @@ final class HIDClient: ObservableObject {
         self.manager = manager
 
         let matches: [[String: Any]] = [[
+            kIOHIDVendorIDKey as String: PandaKBHID.vendorId,
+            kIOHIDProductIDKey as String: PandaKBHID.productId,
             kIOHIDDeviceUsagePageKey as String: PandaKBHID.usagePage,
             kIOHIDDeviceUsageKey as String: PandaKBHID.usage,
         ]]

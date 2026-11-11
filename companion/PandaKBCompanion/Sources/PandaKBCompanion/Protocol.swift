@@ -3,6 +3,9 @@ import Foundation
 enum PandaKBHID {
     static let usagePage: UInt16 = 0xFF60
     static let usage: UInt16 = 0x61
+    /// ZMK / nice!nano USB identifiers
+    static let vendorId: Int = 0x1D50
+    static let productId: Int = 0x615E
     static let reportSize = 32
 
     static let cmdLayerTo: UInt8 = 0x01

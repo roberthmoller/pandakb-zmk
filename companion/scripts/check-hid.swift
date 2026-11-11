@@ -7,19 +7,21 @@ let usage: Int = 0x61
 
 let manager = IOHIDManagerCreate(kCFAllocatorDefault, IOOptionBits(kIOHIDOptionsTypeNone))
 let matches: [[String: Any]] = [[
+    kIOHIDVendorIDKey as String: 0x1D50,
+    kIOHIDProductIDKey as String: 0x615E,
     kIOHIDDeviceUsagePageKey as String: usagePage,
     kIOHIDDeviceUsageKey as String: usage,
 ]]
 IOHIDManagerSetDeviceMatchingMultiple(manager, matches as CFArray)
 IOHIDManagerOpen(manager, IOOptionBits(kIOHIDOptionsTypeNone))
 
-guard let devices = IOHIDManagerCopyDevices(manager) as? Set<IOHIDDevice> else {
-    print("No Raw HID devices matched usage page 0xFF60 / usage 0x61")
-    print("Flash the new left firmware (raw_hid_adapter) and reconnect USB.")
+guard let devices = IOHIDManagerCopyDevices(manager) as? Set<IOHIDDevice>, !devices.isEmpty else {
+    print("No ZMK Raw HID device (VID 0x1D50 / PID 0x615E, page 0xFF60).")
+    print("Flash Lily58_left_oled.uf2, plug the left half over USB, then retry.")
     exit(1)
 }
 
-print("Found \(devices.count) Raw HID device(s):")
+print("Found \(devices.count) ZMK Raw HID device(s):")
 for device in devices {
     let product = IOHIDDeviceGetProperty(device, kIOHIDProductKey as CFString) as? String ?? "?"
     let vid = IOHIDDeviceGetProperty(device, kIOHIDVendorIDKey as CFString) as? Int ?? 0
