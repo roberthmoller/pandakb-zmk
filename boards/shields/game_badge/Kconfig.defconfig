@@ -9,11 +9,8 @@ config PANDAKB_GAME_BADGE_SCREEN
 config ZMK_DISPLAY
 	default y
 
-config ZMK_DISPLAY_STATUS_SCREEN_CUSTOM
-	default y
-
-# Avoid fighting the built-in screen selection
-config ZMK_DISPLAY_STATUS_SCREEN_BUILT_IN
-	default n
+choice ZMK_DISPLAY_STATUS_SCREEN
+	default ZMK_DISPLAY_STATUS_SCREEN_CUSTOM
+endchoice
 
 endif # SHIELD_GAME_BADGE
