@@ -19,6 +19,7 @@ config PANDAKB_GAME_BADGE_SCREEN
 	bool "Custom status screen: game badge"
 	default n
 	depends on ZMK_DISPLAY
+	select LV_USE_LABEL
 	help
 	  Replace the status screen with a large game-badge wordmark
 	  (idle / WoW / LoL). Intended for the right/peripheral OLED.
