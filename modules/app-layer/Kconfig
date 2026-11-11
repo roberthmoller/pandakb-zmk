@@ -16,13 +16,14 @@ config PANDAKB_APP_LAYER_RAW_HID
 	  set_badge commands.
 
 config PANDAKB_GAME_BADGE_SCREEN
-	bool "Custom status screen: game badge"
+	bool "Custom status screen: buddy + game badge"
 	default n
 	depends on ZMK_DISPLAY
 	select LV_USE_LABEL
+	select LV_USE_IMG
 	help
-	  Replace the status screen with a large game-badge wordmark
-	  (idle / WoW / LoL). Intended for the right/peripheral OLED.
+	  Right OLED: animated buddy when idle; game icon + optional
+	  live stats (KDA/CS) when a game badge is active.
 	  Enable via the game_badge shield; do not select choice symbols here.
 
 endif # PANDAKB_APP_LAYER

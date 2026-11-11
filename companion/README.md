@@ -3,10 +3,17 @@
 Menu bar app that:
 
 1. Watches the frontmost app
-2. Sets a **game badge** on the right OLED (`idle` / `WoW` / `LoL`)
+2. Drives the **right OLED**: animated buddy when idle; game icon (+ live stats) for WoW/LoL
 3. Optionally sticky-switches keyboard layers (`Base` / `WoW` / `LoL`)
 
 Badge and layer are independent. Left OLED keeps its normal `nice_oled` layout (including layer name).
+
+## Live stats
+
+While League of Legends is in a match, the companion polls the local Live Client API
+(`https://127.0.0.1:2999`) and pushes K/D/A, CS, and level to the keyboard.
+
+WoW currently shows the game icon only (no public live API).
 
 ## Run
 
@@ -36,6 +43,6 @@ Plug in USB (or use BLE HID) so the companion can open the Raw HID interface (`0
 | `com.blizzard.worldofwarcraft.classic` | WoW | WoW |
 | `com.riotgames.LeagueofLegends.GameClient` | LoL | LoL |
 | `com.riotgames.LeagueofLegends.LeagueClient` | LoL | off |
-| anything else | Idle | Base |
+| anything else | Buddy | Base |
 
 Protocol details: [../modules/app-layer/PROTOCOL.md](../modules/app-layer/PROTOCOL.md)

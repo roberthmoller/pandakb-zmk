@@ -20,7 +20,9 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 static int on_keymap_binding_pressed(struct zmk_behavior_binding *binding,
                                      struct zmk_behavior_binding_event event) {
     ARG_UNUSED(event);
-    return pandakb_badge_set((uint8_t)binding->param1);
+    struct pandakb_badge_status status;
+    pandakb_badge_unpack_params(binding->param1, binding->param2, &status);
+    return pandakb_badge_set_status(&status);
 }
 
 static int on_keymap_binding_released(struct zmk_behavior_binding *binding,

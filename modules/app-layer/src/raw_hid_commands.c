@@ -19,13 +19,12 @@
 
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
+static int invoke_badge_status(const struct pandakb_badge_status *status) {
 #if DT_NODE_EXISTS(DT_NODELABEL(badge))
-
-static int invoke_badge(uint8_t badge) {
     struct zmk_behavior_binding binding = {
         .behavior_dev = DEVICE_DT_NAME(DT_NODELABEL(badge)),
-        .param1 = badge,
-        .param2 = 0,
+        .param1 = pandakb_badge_pack_param1(status),
+        .param2 = pandakb_badge_pack_param2(status),
     };
     struct zmk_behavior_binding_event event = {
         .layer = 0,
@@ -37,16 +36,32 @@ static int invoke_badge(uint8_t badge) {
     };
 
     return zmk_behavior_invoke_binding(&binding, event, true);
-}
-
 #else
-
-static int invoke_badge(uint8_t badge) { return pandakb_badge_set(badge); }
-
+    return pandakb_badge_set_status(status);
 #endif
+}
 
 static bool layer_allowed(uint8_t layer) {
     return layer == PANDAKB_LAYER_BASE || layer == PANDAKB_LAYER_WOW || layer == PANDAKB_LAYER_LOL;
+}
+
+static void parse_set_badge(const uint8_t *data, uint8_t length) {
+    struct pandakb_badge_status status = {
+        .badge = data[1],
+    };
+
+    /* Optional stats: [2]=k [3]=d [4]=a [5]=cs_lo [6]=cs_hi [7]=level [8]=flags */
+    if (length >= 9) {
+        status.kills = data[2];
+        status.deaths = data[3];
+        status.assists = data[4];
+        status.cs = (uint16_t)data[5] | ((uint16_t)data[6] << 8);
+        status.level = data[7];
+        status.flags = data[8];
+    }
+
+    LOG_DBG("set_badge %u flags=0x%02x", status.badge, status.flags);
+    invoke_badge_status(&status);
 }
 
 static int on_raw_hid_received(const zmk_event_t *eh) {
@@ -68,8 +83,7 @@ static int on_raw_hid_received(const zmk_event_t *eh) {
         zmk_keymap_layer_to(arg);
         break;
     case PANDAKB_HID_CMD_SET_BADGE:
-        LOG_DBG("set_badge %u", arg);
-        invoke_badge(arg);
+        parse_set_badge(ev->data, ev->length);
         break;
     default:
         break;

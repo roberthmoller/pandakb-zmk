@@ -49,11 +49,25 @@ final class HIDClient: ObservableObject {
     }
 
     func setLayer(_ layer: StickyLayer) {
-        send(command: PandaKBHID.cmdLayerTo, argument: layer.rawValue)
+        send(bytes: [PandaKBHID.cmdLayerTo, layer.rawValue])
     }
 
     func setBadge(_ badge: GameBadge) {
-        send(command: PandaKBHID.cmdSetBadge, argument: badge.rawValue)
+        setStatus(.badgeOnly(badge))
+    }
+
+    func setStatus(_ status: GameStatus) {
+        send(bytes: [
+            PandaKBHID.cmdSetBadge,
+            status.badge.rawValue,
+            status.kills,
+            status.deaths,
+            status.assists,
+            UInt8(status.cs & 0xff),
+            UInt8((status.cs >> 8) & 0xff),
+            status.level,
+            status.statsValid ? PandaKBHID.statusFlagValid : 0,
+        ])
     }
 
     private func attach(_ device: IOHIDDevice) {
@@ -73,15 +87,16 @@ final class HIDClient: ObservableObject {
         }
     }
 
-    private func send(command: UInt8, argument: UInt8) {
+    private func send(bytes: [UInt8]) {
         guard let device else {
             lastError = "Keyboard Raw HID not connected (plug in USB or pair BLE HID)"
             return
         }
 
         var report = [UInt8](repeating: 0, count: PandaKBHID.reportSize)
-        report[0] = command
-        report[1] = argument
+        for (i, b) in bytes.prefix(PandaKBHID.reportSize).enumerated() {
+            report[i] = b
+        }
 
         let result = report.withUnsafeMutableBufferPointer { buffer in
             IOHIDDeviceSetReport(

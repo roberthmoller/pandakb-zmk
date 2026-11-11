@@ -8,7 +8,7 @@
         /* <= 8 chars required for global-locality split invoke */
         badge: badge {
             compatible = "zmk,behavior-game-badge";
-            #binding-cells = <1>;
+            #binding-cells = <2>;
             display-name = "Game Badge";
         };
     };

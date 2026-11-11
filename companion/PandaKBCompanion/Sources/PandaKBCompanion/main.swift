@@ -34,7 +34,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func refreshTitle() {
         guard let button = statusItem?.button else { return }
-        let badge = model.badge == .idle ? "·" : model.badge.title
+        let badge = model.badge == .idle ? "·" : model.status.summary
         let link = model.hid.connected ? "" : "!"
         button.title = "KB \(badge)\(link)"
         rebuildMenu()
@@ -61,6 +61,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let focusItem = NSMenuItem(title: "Focus: \(focusName)", action: nil, keyEquivalent: "")
         focusItem.isEnabled = false
         menu.addItem(focusItem)
+
+        let live = NSMenuItem(title: model.lolLiveLine, action: nil, keyEquivalent: "")
+        live.isEnabled = false
+        menu.addItem(live)
 
         menu.addItem(.separator())
 

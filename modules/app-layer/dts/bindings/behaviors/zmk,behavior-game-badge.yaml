@@ -1,8 +1,8 @@
 # Copyright (c) 2026 PandaKB
 # SPDX-License-Identifier: MIT
 
-description: Set the PandaKB game badge (global locality for split sync)
+description: Set the PandaKB game badge + status (global locality for split sync)
 
 compatible: "zmk,behavior-game-badge"
 
-include: one_param.yaml
+include: two_param.yaml
