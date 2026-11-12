@@ -2,44 +2,58 @@ import Combine
 import Foundation
 
 final class CompanionModel: ObservableObject {
+    /// Raw HID → keyboard is disabled while we stabilize the firmware.
+    /// Keep HIDClient around; flip this to true to re-enable later.
+    static let hidEnabled = false
+
     @Published var status = MediaStatus(playback: .stopped, volume: 0)
 
     let hid = HIDClient()
     let media = MediaMonitor()
 
     private var bag = Set<AnyCancellable>()
-    private var lastSent = MediaStatus(playback: .stopped, volume: 255) // force first push
+    private var lastSent = MediaStatus(playback: .stopped, volume: 255)
 
     func start() {
-        hid.start()
+        if Self.hidEnabled {
+            hid.start()
+        }
         media.start()
 
         media.$status
             .receive(on: DispatchQueue.main)
             .sink { [weak self] next in
-                self?.pushIfChanged(next)
+                self?.onMedia(next)
             }
             .store(in: &bag)
 
-        hid.$connected
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] connected in
-                guard let self, connected else { return }
-                // Resync when the keyboard reconnects.
-                self.lastSent = MediaStatus(playback: .stopped, volume: 255)
-                self.pushIfChanged(self.media.status)
-            }
-            .store(in: &bag)
+        if Self.hidEnabled {
+            hid.$connected
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] connected in
+                    guard let self, connected else { return }
+                    self.lastSent = MediaStatus(playback: .stopped, volume: 255)
+                    self.pushIfChanged(self.media.status)
+                }
+                .store(in: &bag)
+        }
     }
 
     func stop() {
         media.stop()
-        hid.stop()
+        if Self.hidEnabled {
+            hid.stop()
+        }
         bag.removeAll()
     }
 
-    private func pushIfChanged(_ next: MediaStatus) {
+    private func onMedia(_ next: MediaStatus) {
         status = next
+        guard Self.hidEnabled else { return }
+        pushIfChanged(next)
+    }
+
+    private func pushIfChanged(_ next: MediaStatus) {
         guard next != lastSent else { return }
         lastSent = next
         hid.setMedia(next)

@@ -1,62 +1,23 @@
 # PandaKB Companion (macOS)
 
-Menu bar app that:
+Menu bar app for PandaKB. **Raw HID → keyboard is currently disabled** (`CompanionModel.hidEnabled = false`) while the firmware is stabilized.
 
-1. Pushes **media play/pause + system volume** to the right OLED over Raw HID
-2. Hosts **ZmkWiz** (Keymap Wizard) — Lily58 learn / trainer / test / firmware UI
-
-No game layers, LoL stats, or focus switching — those paths overloaded the split link.
+The app still shows local media play/pause + volume in the menu bar. Keymap Wizard remains available.
 
 ## Run
 
-Needs **Node.js ≥ 22.17** (wizard UI; `.nvmrc` → 22.22.0) and Swift 5.9+.
-
 ```bash
-# once — install ZmkWiz deps (also auto-runs on first Open Keymap Wizard)
-cd companion/zmkwiz
-npm run install:deps
-
-cd ../PandaKBCompanion
+cd companion/PandaKBCompanion
 swift run
 ```
 
-### Keymap Wizard
+## Firmware (no HID)
 
-From the menu bar `KB` menu:
+Flash the OLED pair built with stock `nice_oled` only:
 
-| Item | Action |
-|------|--------|
-| **Open Keymap Wizard** | Starts local Vite on `127.0.0.1:17301` and opens a WKWebView window |
-| **Open Wizard in Browser** | Same server, opens your default browser (better for Web Serial / Firmware Live) |
+- Left: `Lily58_L nice_oled`
+- Right: `Lily58_R nice_oled`
 
-Override the wizard root with `PANDAKB_ZMKWIZ=/path/to/zmkwiz` if needed.
+To re-enable keyboard HID later: set `CompanionModel.hidEnabled = true` and restore `raw_hid_adapter app_layer` / `game_badge` in `build.yaml`.
 
-Visual `.keymap` editing (Keymap Editor–style) is next; for now load maps in Learn/Trainer and use Firmware Live / Clipboard workflows.
-
-## Firmware
-
-Flash the OLED pair built with:
-
-- Left: `Lily58_L nice_oled raw_hid_adapter app_layer`
-- Right: `Lily58_R game_badge`
-
-After enabling Raw HID for the first time, re-pair Bluetooth if the keyboard was already bonded.
-
-Plug in USB (or use BLE HID) so the companion can open the Raw HID interface (`0xFF60` / `0x61`).
-
-## Behavior
-
-- Polls now-playing via MediaRemote and output volume about every 2s
-- Sends HID only when play state or volume **changes**
-- Right OLED shows play/pause/stop, volume, battery, and link
-
-Protocol details: [../modules/app-layer/PROTOCOL.md](../modules/app-layer/PROTOCOL.md)
-
-## Layout
-
-```
-companion/
-  PandaKBCompanion/   # Swift menu bar + HID + wizard window
-  zmkwiz/             # ZmkWiz (SvelteKit) hosted by the companion
-  scripts/
-```
+Protocol (dormant): [../modules/app-layer/PROTOCOL.md](../modules/app-layer/PROTOCOL.md)

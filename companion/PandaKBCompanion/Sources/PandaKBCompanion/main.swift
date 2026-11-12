@@ -34,31 +34,42 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func refreshTitle() {
         guard let button = statusItem?.button else { return }
-        let link = model.hid.connected ? "" : "!"
-        button.title = "KB \(model.status.summary)\(link)"
+        button.title = "KB \(model.status.summary)"
         rebuildMenu()
     }
 
     private func rebuildMenu() {
         let menu = NSMenu()
 
-        let status = NSMenuItem(
-            title: model.hid.connected ? "Keyboard: connected" : "Keyboard: not connected",
-            action: nil,
-            keyEquivalent: ""
-        )
-        status.isEnabled = false
-        menu.addItem(status)
-
-        if let err = model.hid.lastError {
-            let errorItem = NSMenuItem(title: err, action: nil, keyEquivalent: "")
-            errorItem.isEnabled = false
-            menu.addItem(errorItem)
-        }
-
         let media = NSMenuItem(title: "Media: \(model.status.summary)", action: nil, keyEquivalent: "")
         media.isEnabled = false
         menu.addItem(media)
+
+        // HID keyboard link UI hidden while CompanionModel.hidEnabled == false.
+        if CompanionModel.hidEnabled {
+            menu.addItem(.separator())
+            let status = NSMenuItem(
+                title: model.hid.connected ? "Keyboard: connected" : "Keyboard: not connected",
+                action: nil,
+                keyEquivalent: ""
+            )
+            status.isEnabled = false
+            menu.addItem(status)
+
+            if let err = model.hid.lastError {
+                let errorItem = NSMenuItem(title: err, action: nil, keyEquivalent: "")
+                errorItem.isEnabled = false
+                menu.addItem(errorItem)
+            }
+        } else {
+            let hidOff = NSMenuItem(
+                title: "Keyboard HID: disabled",
+                action: nil,
+                keyEquivalent: ""
+            )
+            hidOff.isEnabled = false
+            menu.addItem(hidOff)
+        }
 
         menu.addItem(.separator())
 

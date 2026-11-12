@@ -1,6 +1,7 @@
 import Foundation
 import IOKit.hid
 
+/// Raw HID client — kept but not started while `CompanionModel.hidEnabled` is false.
 final class HIDClient: ObservableObject {
     @Published private(set) var connected = false
     @Published private(set) var lastError: String?
@@ -9,6 +10,11 @@ final class HIDClient: ObservableObject {
     private var device: IOHIDDevice?
 
     func start() {
+        // No-op guard if someone calls start while HID is disabled.
+        guard CompanionModel.hidEnabled else {
+            lastError = "HID disabled (CompanionModel.hidEnabled = false)"
+            return
+        }
         let manager = IOHIDManagerCreate(kCFAllocatorDefault, IOOptionBits(kIOHIDOptionsTypeNone))
         self.manager = manager
 
@@ -49,6 +55,7 @@ final class HIDClient: ObservableObject {
     }
 
     func setMedia(_ status: MediaStatus) {
+        guard CompanionModel.hidEnabled else { return }
         send(bytes: [
             PandaKBHID.cmdSetMedia,
             status.playback.rawValue,
