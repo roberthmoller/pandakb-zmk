@@ -69,7 +69,7 @@ static int on_keymap_binding_pressed(struct zmk_behavior_binding *binding,
         send_layer_preview(PANDAKB_LAYER_PREVIEW_SHOW, (uint8_t)binding->param1);
     }
 
-    return zmk_keymap_layer_activate(binding->param1, false);
+    return zmk_keymap_layer_activate(binding->param1);
 }
 
 static int on_keymap_binding_released(struct zmk_behavior_binding *binding,
@@ -86,7 +86,7 @@ static int on_keymap_binding_released(struct zmk_behavior_binding *binding,
     state.last_position = event.position;
     state.armed = true;
 
-    return zmk_keymap_layer_deactivate(binding->param1, false);
+    return zmk_keymap_layer_deactivate(binding->param1);
 }
 
 #if IS_ENABLED(CONFIG_ZMK_BEHAVIOR_METADATA)
