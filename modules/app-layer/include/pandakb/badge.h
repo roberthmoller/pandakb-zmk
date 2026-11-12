@@ -32,6 +32,17 @@ enum pandakb_ide_build {
 };
 
 #define PANDAKB_STATUS_FLAG_VALID 0x01
+/* LoL flags bits 1–3: one-shot event flash (companion clears next poll). */
+#define PANDAKB_LOL_EVENT_SHIFT 1
+#define PANDAKB_LOL_EVENT_MASK 0x07
+#define PANDAKB_LOL_EVENT_NONE 0
+#define PANDAKB_LOL_EVENT_KILL 1
+#define PANDAKB_LOL_EVENT_DOUBLE 2
+#define PANDAKB_LOL_EVENT_TRIPLE 3
+#define PANDAKB_LOL_EVENT_QUADRA 4
+#define PANDAKB_LOL_EVENT_PENTA 5
+#define PANDAKB_LOL_EVENT_ACE 6
+#define PANDAKB_LOL_EVENT_FIRST_BLOOD 7
 #define PANDAKB_WIDGET_TITLE_LEN 5
 #define PANDAKB_WIDGET_TAG_LEN 4
 
@@ -85,6 +96,15 @@ static inline uint16_t pandakb_lol_cs(const struct pandakb_widget_lol *lol) {
 static inline void pandakb_lol_set_cs(struct pandakb_widget_lol *lol, uint16_t cs) {
     lol->cs_lo = (uint8_t)(cs & 0xff);
     lol->cs_hi = (uint8_t)((cs >> 8) & 0xff);
+}
+
+static inline uint8_t pandakb_lol_event(const struct pandakb_widget_lol *lol) {
+    return (uint8_t)((lol->flags >> PANDAKB_LOL_EVENT_SHIFT) & PANDAKB_LOL_EVENT_MASK);
+}
+
+static inline void pandakb_lol_set_event(struct pandakb_widget_lol *lol, uint8_t event) {
+    lol->flags = (uint8_t)((lol->flags & ~(PANDAKB_LOL_EVENT_MASK << PANDAKB_LOL_EVENT_SHIFT)) |
+                           ((event & PANDAKB_LOL_EVENT_MASK) << PANDAKB_LOL_EVENT_SHIFT));
 }
 
 /* Pack/unpack for global-locality behavior params (split sync, 8 bytes). */

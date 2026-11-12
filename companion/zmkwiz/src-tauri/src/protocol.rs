@@ -49,6 +49,38 @@ pub const MODE_LOL: u8 = 2;
 pub const MODE_IDE: u8 = 3;
 
 pub const FLAG_VALID: u8 = 0x01;
+pub const LOL_EVENT_SHIFT: u8 = 1;
+pub const LOL_EVENT_MASK: u8 = 0x07;
+
+/// One-shot LoL OLED flash (Live Client Multikill / Ace / …).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[repr(u8)]
+pub enum LolEvent {
+    #[default]
+    None = 0,
+    Kill = 1,
+    Double = 2,
+    Triple = 3,
+    Quadra = 4,
+    Penta = 5,
+    Ace = 6,
+    FirstBlood = 7,
+}
+
+impl LolEvent {
+    pub fn label(self) -> &'static str {
+        match self {
+            Self::None => "",
+            Self::Kill => "+",
+            Self::Double => "x2",
+            Self::Triple => "x3",
+            Self::Quadra => "x4",
+            Self::Penta => "x5",
+            Self::Ace => "ACE",
+            Self::FirstBlood => "FB",
+        }
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
@@ -82,6 +114,7 @@ pub enum Widget {
         assists: u8,
         cs: u16,
         level: u8,
+        event: LolEvent,
         valid: bool,
     },
     Ide {
@@ -124,6 +157,7 @@ impl Widget {
                 assists,
                 cs,
                 level,
+                event,
                 valid,
             } => {
                 report[2] = *kills;
@@ -132,7 +166,9 @@ impl Widget {
                 report[5] = (*cs & 0xff) as u8;
                 report[6] = ((*cs >> 8) & 0xff) as u8;
                 report[7] = *level;
-                report[8] = if *valid { FLAG_VALID } else { 0 };
+                let mut flags = if *valid { FLAG_VALID } else { 0 };
+                flags |= (*event as u8 & LOL_EVENT_MASK) << LOL_EVENT_SHIFT;
+                report[8] = flags;
             }
             Widget::Ide {
                 errors,
@@ -175,10 +211,16 @@ impl Widget {
                 assists,
                 cs,
                 level,
+                event,
                 valid,
             } => {
                 if *valid {
-                    format!("LoL {kills}/{deaths}/{assists} CS{cs} Lv{level}")
+                    let flash = event.label();
+                    if flash.is_empty() {
+                        format!("LoL {kills}/{deaths}/{assists} CS{cs} Lv{level}")
+                    } else {
+                        format!("LoL {flash} {kills}/{deaths}/{assists} CS{cs}")
+                    }
                 } else {
                     "LoL …".into()
                 }

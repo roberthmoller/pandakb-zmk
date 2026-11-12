@@ -43,6 +43,15 @@ struct badge_screen_state {
 
 static struct badge_screen_state screen_state;
 
+/* Local overlay so a one-shot HID event still gets ~1.5s even after flags clear. */
+static uint8_t lol_flash_event;
+static uint8_t lol_flash_seen;
+static lv_timer_t *lol_flash_timer;
+
+#define LOL_FLASH_MS 1500
+
+static void redraw_screen(void);
+
 static void init_label_dsc(lv_draw_label_dsc_t *label_dsc, lv_color_t color, const lv_font_t *font,
                            lv_text_align_t align) {
     lv_draw_label_dsc_init(label_dsc);
@@ -180,7 +189,75 @@ static void draw_media_content(void) {
     }
 }
 
+static const char *lol_flash_label(uint8_t event) {
+    switch (event) {
+    case PANDAKB_LOL_EVENT_KILL:
+        return "+";
+    case PANDAKB_LOL_EVENT_DOUBLE:
+        return "x2";
+    case PANDAKB_LOL_EVENT_TRIPLE:
+        return "x3";
+    case PANDAKB_LOL_EVENT_QUADRA:
+        return "x4";
+    case PANDAKB_LOL_EVENT_PENTA:
+        return "x5";
+    case PANDAKB_LOL_EVENT_ACE:
+        return "ACE";
+    case PANDAKB_LOL_EVENT_FIRST_BLOOD:
+        return "FB";
+    default:
+        return NULL;
+    }
+}
+
+static void lol_flash_timer_cb(lv_timer_t *timer) {
+    if (lol_flash_timer == timer) {
+        lol_flash_timer = NULL;
+    }
+    lv_timer_del(timer);
+    lol_flash_event = 0;
+    redraw_screen();
+}
+
+static void lol_flash_arm(uint8_t event) {
+    if (event == PANDAKB_LOL_EVENT_NONE) {
+        lol_flash_seen = PANDAKB_LOL_EVENT_NONE;
+        return;
+    }
+    if (event == lol_flash_seen) {
+        return;
+    }
+
+    lol_flash_seen = event;
+    lol_flash_event = event;
+
+    if (lol_flash_timer != NULL) {
+        lv_timer_del(lol_flash_timer);
+        lol_flash_timer = NULL;
+    }
+    lol_flash_timer = lv_timer_create(lol_flash_timer_cb, LOL_FLASH_MS, NULL);
+}
+
+static void draw_lol_flash(uint8_t event) {
+    lv_draw_rect_dsc_t fill;
+    init_rect_dsc(&fill, LVGL_FOREGROUND);
+    lv_canvas_draw_rect(canvas, 0, 36, CANVAS_WIDTH, 92, &fill);
+
+    lv_draw_label_dsc_t label_dsc;
+    init_label_dsc(&label_dsc, LVGL_BACKGROUND, &lv_font_montserrat_12, LV_TEXT_ALIGN_CENTER);
+
+    const char *msg = lol_flash_label(event);
+    if (msg != NULL) {
+        lv_canvas_draw_text(canvas, 0, 70, CANVAS_WIDTH, &label_dsc, msg);
+    }
+}
+
 static void draw_lol_content(void) {
+    if (lol_flash_event != PANDAKB_LOL_EVENT_NONE) {
+        draw_lol_flash(lol_flash_event);
+        return;
+    }
+
     lv_draw_label_dsc_t label_dsc;
     init_label_dsc(&label_dsc, LVGL_FOREGROUND, &lv_font_montserrat_12, LV_TEXT_ALIGN_CENTER);
 
@@ -283,6 +360,16 @@ static void redraw_screen(void) {
 
 static void badge_screen_update_cb(struct badge_screen_state state) {
     screen_state.status = state.status;
+    if (state.status.mode == PANDAKB_WIDGET_LOL) {
+        lol_flash_arm(pandakb_lol_event(&state.status.u.lol));
+    } else {
+        lol_flash_arm(PANDAKB_LOL_EVENT_NONE);
+        lol_flash_event = PANDAKB_LOL_EVENT_NONE;
+        if (lol_flash_timer != NULL) {
+            lv_timer_del(lol_flash_timer);
+            lol_flash_timer = NULL;
+        }
+    }
     redraw_screen();
 }
 

@@ -48,7 +48,20 @@ Sent when a `&mo_prev` layer key is double-tap-held (show) or released after a p
 | 4 | assists |
 | 5–6 | CS little-endian |
 | 7 | level |
-| 8 | flags: bit0 = stats valid |
+| 8 | flags: bit0 = stats valid; bits 1–3 = one-shot event (see below) |
+
+Event codes (bits 1–3), cleared by the companion on the next poll after a flash:
+
+| Code | Meaning |
+|------|---------|
+| 0 | none |
+| 1 | champion kill |
+| 2 | double kill |
+| 3 | triple kill |
+| 4 | quadra kill |
+| 5 | pentakill |
+| 6 | ace |
+| 7 | first blood |
 
 #### Mode `IDE` (3)
 
