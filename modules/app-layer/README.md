@@ -5,7 +5,7 @@ Firmware pieces for the PandaKB macOS companion. Built via the repo-root
 
 - Raw HID commands on the central half (`layer_to`, `set_badge` with optional stats)
 - Global-locality `&badge` behavior so the peripheral OLED syncs badge + packed stats
-- Right OLED: animated buddy (idle), game icons + KDA/CS when present
+- Right OLED: static buddy (idle), game icons + KDA/CS when present
 - Shields live in `boards/shields/app_layer` and `boards/shields/game_badge`
 
 See [PROTOCOL.md](PROTOCOL.md).

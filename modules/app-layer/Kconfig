@@ -22,7 +22,7 @@ config PANDAKB_GAME_BADGE_SCREEN
 	select LV_USE_LABEL
 	select LV_USE_IMG
 	help
-	  Right OLED: animated buddy when idle; game icon + optional
+	  Right OLED: static buddy when idle; game icon + optional
 	  live stats (KDA/CS) when a game badge is active.
 	  Enable via the game_badge shield; do not select choice symbols here.
 

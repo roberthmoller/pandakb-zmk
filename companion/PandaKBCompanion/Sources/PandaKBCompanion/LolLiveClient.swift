@@ -20,7 +20,7 @@ final class LolLiveClient: ObservableObject {
 
     func start() {
         stop()
-        let t = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
+        let t = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
             self?.poll()
         }
         RunLoop.main.add(t, forMode: .common)

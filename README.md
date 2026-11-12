@@ -2,7 +2,7 @@
 
 ## App companion (OLED)
 
-macOS menu bar app + firmware hooks for the right OLED (animated buddy / game icons + live LoL stats) and optional focus-based sticky layers.
+macOS menu bar app + firmware hooks for the right OLED (static buddy / game icons + live LoL stats) and optional focus-based sticky layers.
 
 - Companion: [companion/README.md](companion/README.md)
 - HID protocol: [modules/app-layer/PROTOCOL.md](modules/app-layer/PROTOCOL.md)

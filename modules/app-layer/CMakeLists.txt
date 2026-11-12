@@ -10,9 +10,6 @@ if(CONFIG_PANDAKB_APP_LAYER)
     zephyr_library_sources(
       src/badge_screen.c
       src/art/buddy_0.c
-      src/art/buddy_1.c
-      src/art/buddy_2.c
-      src/art/buddy_3.c
       src/art/icon_wow.c
       src/art/icon_lol.c
     )

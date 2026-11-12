@@ -3,7 +3,7 @@
 Menu bar app that:
 
 1. Watches the frontmost app
-2. Drives the **right OLED**: animated buddy when idle; game icon (+ live stats) for WoW/LoL
+2. Drives the **right OLED**: static buddy when idle; game icon (+ live stats) for WoW/LoL
 3. Optionally sticky-switches keyboard layers (`Base` / `WoW` / `LoL`)
 
 Badge and layer are independent. Left OLED keeps its normal `nice_oled` layout (including layer name).

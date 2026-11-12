@@ -15,6 +15,9 @@ final class CompanionModel: ObservableObject {
 
     private var bag = Set<AnyCancellable>()
     private var focusBadge: GameBadge = .idle
+    private var lastStatusSentAt = Date.distantPast
+    /// Min interval between same-badge HID updates (LoL live stats). Badge changes send immediately.
+    private let minStatusInterval: TimeInterval = 5
 
     func start() {
         hid.start()
@@ -100,8 +103,17 @@ final class CompanionModel: ObservableObject {
     private func pushStatus(_ next: GameStatus) {
         // Avoid HID spam when LoL stats are unchanged.
         if next == status, badge == next.badge { return }
+
+        let badgeChanged = next.badge != badge
+        if !badgeChanged, Date().timeIntervalSince(lastStatusSentAt) < minStatusInterval {
+            // Keep UI in sync, but do not flood the keyboard/split link.
+            status = next
+            return
+        }
+
         status = next
         badge = next.badge
+        lastStatusSentAt = Date()
         hid.setStatus(next)
     }
 }
