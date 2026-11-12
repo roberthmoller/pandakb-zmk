@@ -30,6 +30,15 @@
         };
     };
 
+    macros {
+        macro_pass: macro_pass {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&none &kp N3 &kp D &kp I &kp S &kp N0 &kp N &kp LS(M) &kp I &kp N1 &kp A &kp N>;
+            label = "MACRO_PASS";
+        };
+    };
+
     keymap {
         compatible = "zmk,keymap";
 
@@ -115,7 +124,7 @@
 &bt BT_CLR         &bt BT_SEL 0     &bt BT_SEL 1     &bt BT_SEL 2     &bt BT_SEL 3     &bt BT_SEL 4                       &to WOW  &to LOL  &trans  &trans  &trans  &to BASE
 &ext_power EP_TOG  &rgb_ug RGB_HUD  &rgb_ug RGB_HUI  &rgb_ug RGB_SAD  &rgb_ug RGB_SAI  &rgb_ug RGB_EFF                    &trans   &trans   &trans  &trans  &trans  &trans
 &trans             &rgb_ug RGB_BRD  &rgb_ug RGB_BRI  &trans           &trans           &trans                             &trans   &trans   &trans  &trans  &trans  &trans
-&trans             &trans           &trans           &trans           &trans           &trans           &trans    &trans  &trans   &trans   &trans  &trans  &trans  &trans
+&trans             &trans           &trans           &trans           &trans           &trans           &trans    &trans  &trans   &trans   &trans  &trans  &trans  &macro_pass
                                                      &trans           &trans           &trans           &trans    &trans  &trans   &trans   &trans
             >;
 
