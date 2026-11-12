@@ -19,3 +19,8 @@
 &pro_micro_i2c {
     status = "disabled";
 };
+
+/* Encoder still listed in sensors; disable it when EC11 is off. */
+&right_encoder {
+    status = "disabled";
+};
