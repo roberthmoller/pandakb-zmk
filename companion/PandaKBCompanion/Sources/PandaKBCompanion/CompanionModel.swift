@@ -92,6 +92,7 @@ final class CompanionModel: ObservableObject {
     }
 
     func setLayer(_ layer: StickyLayer) {
+        guard layer != self.layer else { return }
         self.layer = layer
         hid.setLayer(layer)
     }

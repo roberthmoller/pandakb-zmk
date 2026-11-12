@@ -134,7 +134,8 @@ lv_obj_t *zmk_display_status_screen(void) {
     lv_obj_align(line2_label, LV_ALIGN_TOP_LEFT, 42, 18);
     lv_label_set_text(line2_label, "");
 
-    buddy_timer = lv_timer_create(buddy_timer_cb, 450, NULL);
+    /* Slower than ~2fps: less LVGL/I2C load on the peripheral half. */
+    buddy_timer = lv_timer_create(buddy_timer_cb, 900, NULL);
     shown_badge = PANDAKB_BADGE_IDLE;
 
     widget_game_badge_init();
