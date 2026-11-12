@@ -2,7 +2,7 @@
 
 ## App companion
 
-Tauri macOS companion drives a typed right-OLED widget over Raw HID (media / LoL / IDE / idle) and hosts the Keymap Wizard.
+Tauri macOS companion drives a typed right-OLED widget over Raw HID (media / LoL / IDE / idle), shows a glass layer-layout overlay on `&mo_prev` double-tap-hold, and hosts the Keymap Wizard.
 
 - Companion: [companion/README.md](companion/README.md)
 - Protocol: [modules/app-layer/PROTOCOL.md](modules/app-layer/PROTOCOL.md)

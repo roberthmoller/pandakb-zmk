@@ -9,6 +9,21 @@
 | `0x10` | mode + 7-byte payload | Set typed right-OLED widget |
 | `0x03` | playback, volume | Legacy media → widget mode `MEDIA` |
 
+## Keyboard → host
+
+| Byte 0 | Byte 1+ | Meaning |
+|--------|---------|---------|
+| `0x20` | show/hide + layer | Layer layout preview for the companion overlay |
+
+### `0x20` LAYER_PREVIEW
+
+Sent when a `&mo_prev` layer key is double-tap-held (show) or released after a preview (hide).
+
+| Offset | Field |
+|--------|-------|
+| 1 | `1` show, `0` hide |
+| 2 | Layer index (`1` Lower, `2` Raise, …) |
+
 ### `0x10` SET_WIDGET
 
 | Offset | Field |

@@ -1,0 +1,17 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "PandaKB companion defaults",
+  "windows": ["main", "layer-preview"],
+  "permissions": [
+    "core:default",
+    "core:event:default",
+    "core:window:allow-show",
+    "core:window:allow-hide",
+    "core:window:allow-set-focus",
+    "core:window:allow-set-title",
+    "core:window:allow-center",
+    "core:window:allow-set-ignore-cursor-events",
+    "core:tray:default"
+  ]
+}

@@ -184,19 +184,28 @@ static void draw_lol_content(void) {
     lv_draw_label_dsc_t label_dsc;
     init_label_dsc(&label_dsc, LVGL_FOREGROUND, &lv_font_montserrat_12, LV_TEXT_ALIGN_CENTER);
 
+    lv_draw_rect_dsc_t rect_fg;
+    init_rect_dsc(&rect_fg, LVGL_FOREGROUND);
+
     const struct pandakb_widget_lol *g = &screen_state.status.u.lol;
-    lv_canvas_draw_text(canvas, 0, 40, CANVAS_WIDTH, &label_dsc, "LoL");
 
     if (g->flags & PANDAKB_STATUS_FLAG_VALID) {
-        char kda[16];
-        char cs[16];
-        char lvl[16];
-        snprintk(kda, sizeof(kda), "%u/%u/%u", g->kills, g->deaths, g->assists);
-        snprintk(cs, sizeof(cs), "CS%u", pandakb_lol_cs(g));
-        snprintk(lvl, sizeof(lvl), "Lv%u", g->level);
-        lv_canvas_draw_text(canvas, 0, 58, CANVAS_WIDTH, &label_dsc, kda);
-        lv_canvas_draw_text(canvas, 0, 78, CANVAS_WIDTH, &label_dsc, cs);
-        lv_canvas_draw_text(canvas, 0, 98, CANVAS_WIDTH, &label_dsc, lvl);
+        char line[8];
+        /* 32px portrait: "10/2/0" and "CS124" overflow montserrat_12 — stack instead. */
+        snprintk(line, sizeof(line), "%u", g->kills);
+        lv_canvas_draw_text(canvas, 0, 38, CANVAS_WIDTH, &label_dsc, line);
+        snprintk(line, sizeof(line), "%u", g->deaths);
+        lv_canvas_draw_text(canvas, 0, 52, CANVAS_WIDTH, &label_dsc, line);
+        snprintk(line, sizeof(line), "%u", g->assists);
+        lv_canvas_draw_text(canvas, 0, 66, CANVAS_WIDTH, &label_dsc, line);
+
+        lv_canvas_draw_rect(canvas, 8, 82, 16, 1, &rect_fg);
+
+        snprintk(line, sizeof(line), "%u", pandakb_lol_cs(g));
+        lv_canvas_draw_text(canvas, 0, 86, CANVAS_WIDTH, &label_dsc, line);
+
+        snprintk(line, sizeof(line), "L%u", g->level);
+        lv_canvas_draw_text(canvas, 0, 108, CANVAS_WIDTH, &label_dsc, line);
     } else {
         lv_canvas_draw_text(canvas, 0, 70, CANVAS_WIDTH, &label_dsc, "...");
     }

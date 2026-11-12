@@ -1,0 +1,11 @@
+# Copyright (c) 2026 PandaKB
+# SPDX-License-Identifier: MIT
+
+description: >
+  Momentary layer with optional companion layout preview on double-tap-hold.
+  Behaves like &mo; a second press within the tap window also notifies the host
+  over Raw HID (0x20 LAYER_PREVIEW) while held.
+
+compatible: "zmk,behavior-mo-preview"
+
+include: one_param.yaml

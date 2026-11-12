@@ -1,0 +1,1472 @@
+{
+  "source": "https://github.com/PandaKBLab/zmk-for-keyboards/tree/zmk-for-lily",
+  "notes": "Matches shipped PandaKB lily58.keymap: Base, Lower, Adjust at index 2. There is no Raise — `&mo 2` opens Adjust (mostly transparent on the right half), so L2+J types j.",
+  "layers": [
+    {
+      "id": "base",
+      "name": "Base",
+      "bindings": [
+        {
+          "raw": "&kp ESC",
+          "behavior": "kp",
+          "params": [
+            "ESC"
+          ],
+          "label": "Esc",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp N1",
+          "behavior": "kp",
+          "params": [
+            "N1"
+          ],
+          "label": "1",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp N2",
+          "behavior": "kp",
+          "params": [
+            "N2"
+          ],
+          "label": "2",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp N3",
+          "behavior": "kp",
+          "params": [
+            "N3"
+          ],
+          "label": "3",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp N4",
+          "behavior": "kp",
+          "params": [
+            "N4"
+          ],
+          "label": "4",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp N5",
+          "behavior": "kp",
+          "params": [
+            "N5"
+          ],
+          "label": "5",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp N6",
+          "behavior": "kp",
+          "params": [
+            "N6"
+          ],
+          "label": "6",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp N7",
+          "behavior": "kp",
+          "params": [
+            "N7"
+          ],
+          "label": "7",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp N8",
+          "behavior": "kp",
+          "params": [
+            "N8"
+          ],
+          "label": "8",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp N9",
+          "behavior": "kp",
+          "params": [
+            "N9"
+          ],
+          "label": "9",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp N0",
+          "behavior": "kp",
+          "params": [
+            "N0"
+          ],
+          "label": "0",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp GRAVE",
+          "behavior": "kp",
+          "params": [
+            "GRAVE"
+          ],
+          "label": "`",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp TAB",
+          "behavior": "kp",
+          "params": [
+            "TAB"
+          ],
+          "label": "Tab",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp Q",
+          "behavior": "kp",
+          "params": [
+            "Q"
+          ],
+          "label": "Q",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp W",
+          "behavior": "kp",
+          "params": [
+            "W"
+          ],
+          "label": "W",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp E",
+          "behavior": "kp",
+          "params": [
+            "E"
+          ],
+          "label": "E",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp R",
+          "behavior": "kp",
+          "params": [
+            "R"
+          ],
+          "label": "R",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp T",
+          "behavior": "kp",
+          "params": [
+            "T"
+          ],
+          "label": "T",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp Y",
+          "behavior": "kp",
+          "params": [
+            "Y"
+          ],
+          "label": "Y",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp U",
+          "behavior": "kp",
+          "params": [
+            "U"
+          ],
+          "label": "U",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp I",
+          "behavior": "kp",
+          "params": [
+            "I"
+          ],
+          "label": "I",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp O",
+          "behavior": "kp",
+          "params": [
+            "O"
+          ],
+          "label": "O",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp P",
+          "behavior": "kp",
+          "params": [
+            "P"
+          ],
+          "label": "P",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp MINUS",
+          "behavior": "kp",
+          "params": [
+            "MINUS"
+          ],
+          "label": "-",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp LCTRL",
+          "behavior": "kp",
+          "params": [
+            "LCTRL"
+          ],
+          "label": "Ctrl",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp A",
+          "behavior": "kp",
+          "params": [
+            "A"
+          ],
+          "label": "A",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp S",
+          "behavior": "kp",
+          "params": [
+            "S"
+          ],
+          "label": "S",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp D",
+          "behavior": "kp",
+          "params": [
+            "D"
+          ],
+          "label": "D",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp F",
+          "behavior": "kp",
+          "params": [
+            "F"
+          ],
+          "label": "F",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp G",
+          "behavior": "kp",
+          "params": [
+            "G"
+          ],
+          "label": "G",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp H",
+          "behavior": "kp",
+          "params": [
+            "H"
+          ],
+          "label": "H",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp J",
+          "behavior": "kp",
+          "params": [
+            "J"
+          ],
+          "label": "J",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp K",
+          "behavior": "kp",
+          "params": [
+            "K"
+          ],
+          "label": "K",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp L",
+          "behavior": "kp",
+          "params": [
+            "L"
+          ],
+          "label": "L",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp SEMI",
+          "behavior": "kp",
+          "params": [
+            "SEMI"
+          ],
+          "label": ";",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp SQT",
+          "behavior": "kp",
+          "params": [
+            "SQT"
+          ],
+          "label": "'",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp LSHFT",
+          "behavior": "kp",
+          "params": [
+            "LSHFT"
+          ],
+          "label": "Shift",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp Z",
+          "behavior": "kp",
+          "params": [
+            "Z"
+          ],
+          "label": "Z",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp X",
+          "behavior": "kp",
+          "params": [
+            "X"
+          ],
+          "label": "X",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp C",
+          "behavior": "kp",
+          "params": [
+            "C"
+          ],
+          "label": "C",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp V",
+          "behavior": "kp",
+          "params": [
+            "V"
+          ],
+          "label": "V",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp B",
+          "behavior": "kp",
+          "params": [
+            "B"
+          ],
+          "label": "B",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp C_MUTE",
+          "behavior": "kp",
+          "params": [
+            "C_MUTE"
+          ],
+          "label": "Mute",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&rgb_ug RGB_TOG",
+          "behavior": "rgb_ug",
+          "params": [
+            "RGB_TOG"
+          ],
+          "label": "RGB",
+          "gloss": "RGB underglow control."
+        },
+        {
+          "raw": "&kp N",
+          "behavior": "kp",
+          "params": [
+            "N"
+          ],
+          "label": "N",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp M",
+          "behavior": "kp",
+          "params": [
+            "M"
+          ],
+          "label": "M",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp COMMA",
+          "behavior": "kp",
+          "params": [
+            "COMMA"
+          ],
+          "label": ",",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp DOT",
+          "behavior": "kp",
+          "params": [
+            "DOT"
+          ],
+          "label": ".",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp FSLH",
+          "behavior": "kp",
+          "params": [
+            "FSLH"
+          ],
+          "label": "/",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp RSHFT",
+          "behavior": "kp",
+          "params": [
+            "RSHFT"
+          ],
+          "label": "Shift",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp LALT",
+          "behavior": "kp",
+          "params": [
+            "LALT"
+          ],
+          "label": "Alt",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp LGUI",
+          "behavior": "kp",
+          "params": [
+            "LGUI"
+          ],
+          "label": "GUI",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&mo_prev 1",
+          "behavior": "mo_prev",
+          "params": [
+            "1"
+          ],
+          "label": "L1",
+          "gloss": "Momentary layer with companion preview — double-tap-hold shows the layout overlay while held. Target layer 1."
+        },
+        {
+          "raw": "&kp SPACE",
+          "behavior": "kp",
+          "params": [
+            "SPACE"
+          ],
+          "label": "Space",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp RET",
+          "behavior": "kp",
+          "params": [
+            "RET"
+          ],
+          "label": "Enter",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&mo_prev 2",
+          "behavior": "mo_prev",
+          "params": [
+            "2"
+          ],
+          "label": "L2",
+          "gloss": "Momentary layer with companion preview — double-tap-hold shows the layout overlay while held. Target layer 2."
+        },
+        {
+          "raw": "&kp BSPC",
+          "behavior": "kp",
+          "params": [
+            "BSPC"
+          ],
+          "label": "Bksp",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp RGUI",
+          "behavior": "kp",
+          "params": [
+            "RGUI"
+          ],
+          "label": "GUI",
+          "gloss": "Key press — sends a HID keycode while held."
+        }
+      ]
+    },
+    {
+      "id": "lower",
+      "name": "Lower",
+      "bindings": [
+        {
+          "raw": "&bt BT_CLR",
+          "behavior": "bt",
+          "params": [
+            "BT_CLR"
+          ],
+          "label": "BT CLR",
+          "gloss": "Clears Bluetooth pairings."
+        },
+        {
+          "raw": "&bt BT_SEL 0",
+          "behavior": "bt",
+          "params": [
+            "BT_SEL",
+            "0"
+          ],
+          "label": "BT1",
+          "gloss": "Select Bluetooth profile 1."
+        },
+        {
+          "raw": "&bt BT_SEL 1",
+          "behavior": "bt",
+          "params": [
+            "BT_SEL",
+            "1"
+          ],
+          "label": "BT2",
+          "gloss": "Select Bluetooth profile 2."
+        },
+        {
+          "raw": "&bt BT_SEL 2",
+          "behavior": "bt",
+          "params": [
+            "BT_SEL",
+            "2"
+          ],
+          "label": "BT3",
+          "gloss": "Select Bluetooth profile 3."
+        },
+        {
+          "raw": "&bt BT_SEL 3",
+          "behavior": "bt",
+          "params": [
+            "BT_SEL",
+            "3"
+          ],
+          "label": "BT4",
+          "gloss": "Select Bluetooth profile 4."
+        },
+        {
+          "raw": "&bt BT_SEL 4",
+          "behavior": "bt",
+          "params": [
+            "BT_SEL",
+            "4"
+          ],
+          "label": "BT5",
+          "gloss": "Select Bluetooth profile 5."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&kp F1",
+          "behavior": "kp",
+          "params": [
+            "F1"
+          ],
+          "label": "F1",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp F2",
+          "behavior": "kp",
+          "params": [
+            "F2"
+          ],
+          "label": "F2",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp F3",
+          "behavior": "kp",
+          "params": [
+            "F3"
+          ],
+          "label": "F3",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp F4",
+          "behavior": "kp",
+          "params": [
+            "F4"
+          ],
+          "label": "F4",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp F5",
+          "behavior": "kp",
+          "params": [
+            "F5"
+          ],
+          "label": "F5",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp F6",
+          "behavior": "kp",
+          "params": [
+            "F6"
+          ],
+          "label": "F6",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp F7",
+          "behavior": "kp",
+          "params": [
+            "F7"
+          ],
+          "label": "F7",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp F8",
+          "behavior": "kp",
+          "params": [
+            "F8"
+          ],
+          "label": "F8",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp F9",
+          "behavior": "kp",
+          "params": [
+            "F9"
+          ],
+          "label": "F9",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp F10",
+          "behavior": "kp",
+          "params": [
+            "F10"
+          ],
+          "label": "F10",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp F11",
+          "behavior": "kp",
+          "params": [
+            "F11"
+          ],
+          "label": "F11",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp F12",
+          "behavior": "kp",
+          "params": [
+            "F12"
+          ],
+          "label": "F12",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp GRAVE",
+          "behavior": "kp",
+          "params": [
+            "GRAVE"
+          ],
+          "label": "`",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp EXCL",
+          "behavior": "kp",
+          "params": [
+            "EXCL"
+          ],
+          "label": "!",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp AT",
+          "behavior": "kp",
+          "params": [
+            "AT"
+          ],
+          "label": "@",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp HASH",
+          "behavior": "kp",
+          "params": [
+            "HASH"
+          ],
+          "label": "#",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp DOLLAR",
+          "behavior": "kp",
+          "params": [
+            "DOLLAR"
+          ],
+          "label": "$",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp PRCNT",
+          "behavior": "kp",
+          "params": [
+            "PRCNT"
+          ],
+          "label": "%",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp CARET",
+          "behavior": "kp",
+          "params": [
+            "CARET"
+          ],
+          "label": "^",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp AMPS",
+          "behavior": "kp",
+          "params": [
+            "AMPS"
+          ],
+          "label": "&",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp ASTRK",
+          "behavior": "kp",
+          "params": [
+            "ASTRK"
+          ],
+          "label": "*",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp LPAR",
+          "behavior": "kp",
+          "params": [
+            "LPAR"
+          ],
+          "label": "(",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp RPAR",
+          "behavior": "kp",
+          "params": [
+            "RPAR"
+          ],
+          "label": ")",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp TILDE",
+          "behavior": "kp",
+          "params": [
+            "TILDE"
+          ],
+          "label": "~",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&ext_power EP_ON",
+          "behavior": "ext_power",
+          "params": [
+            "EP_ON"
+          ],
+          "label": "PWR ON",
+          "gloss": "External power — toggles power to peripherals like the display."
+        },
+        {
+          "raw": "&ext_power EP_OFF",
+          "behavior": "ext_power",
+          "params": [
+            "EP_OFF"
+          ],
+          "label": "PWR OFF",
+          "gloss": "External power — toggles power to peripherals like the display."
+        },
+        {
+          "raw": "&ext_power EP_TOG",
+          "behavior": "ext_power",
+          "params": [
+            "EP_TOG"
+          ],
+          "label": "PWR",
+          "gloss": "External power — toggles power to peripherals like the display."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&kp MINUS",
+          "behavior": "kp",
+          "params": [
+            "MINUS"
+          ],
+          "label": "-",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp PLUS",
+          "behavior": "kp",
+          "params": [
+            "PLUS"
+          ],
+          "label": "+",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp LBRC",
+          "behavior": "kp",
+          "params": [
+            "LBRC"
+          ],
+          "label": "{",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp RBRC",
+          "behavior": "kp",
+          "params": [
+            "RBRC"
+          ],
+          "label": "}",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&kp PIPE",
+          "behavior": "kp",
+          "params": [
+            "PIPE"
+          ],
+          "label": "|",
+          "gloss": "Key press — sends a HID keycode while held."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        }
+      ]
+    },
+    {
+      "id": "adjust",
+      "name": "Adjust",
+      "bindings": [
+        {
+          "raw": "&bt BT_CLR",
+          "behavior": "bt",
+          "params": [
+            "BT_CLR"
+          ],
+          "label": "BT CLR",
+          "gloss": "Clears Bluetooth pairings."
+        },
+        {
+          "raw": "&bt BT_SEL 0",
+          "behavior": "bt",
+          "params": [
+            "BT_SEL",
+            "0"
+          ],
+          "label": "BT1",
+          "gloss": "Select Bluetooth profile 1."
+        },
+        {
+          "raw": "&bt BT_SEL 1",
+          "behavior": "bt",
+          "params": [
+            "BT_SEL",
+            "1"
+          ],
+          "label": "BT2",
+          "gloss": "Select Bluetooth profile 2."
+        },
+        {
+          "raw": "&bt BT_SEL 2",
+          "behavior": "bt",
+          "params": [
+            "BT_SEL",
+            "2"
+          ],
+          "label": "BT3",
+          "gloss": "Select Bluetooth profile 3."
+        },
+        {
+          "raw": "&bt BT_SEL 3",
+          "behavior": "bt",
+          "params": [
+            "BT_SEL",
+            "3"
+          ],
+          "label": "BT4",
+          "gloss": "Select Bluetooth profile 4."
+        },
+        {
+          "raw": "&bt BT_SEL 4",
+          "behavior": "bt",
+          "params": [
+            "BT_SEL",
+            "4"
+          ],
+          "label": "BT5",
+          "gloss": "Select Bluetooth profile 5."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&ext_power EP_TOG",
+          "behavior": "ext_power",
+          "params": [
+            "EP_TOG"
+          ],
+          "label": "PWR",
+          "gloss": "External power — toggles power to peripherals like the display."
+        },
+        {
+          "raw": "&rgb_ug RGB_HUD",
+          "behavior": "rgb_ug",
+          "params": [
+            "RGB_HUD"
+          ],
+          "label": "H−",
+          "gloss": "RGB underglow control."
+        },
+        {
+          "raw": "&rgb_ug RGB_HUI",
+          "behavior": "rgb_ug",
+          "params": [
+            "RGB_HUI"
+          ],
+          "label": "H+",
+          "gloss": "RGB underglow control."
+        },
+        {
+          "raw": "&rgb_ug RGB_SAD",
+          "behavior": "rgb_ug",
+          "params": [
+            "RGB_SAD"
+          ],
+          "label": "S−",
+          "gloss": "RGB underglow control."
+        },
+        {
+          "raw": "&rgb_ug RGB_SAI",
+          "behavior": "rgb_ug",
+          "params": [
+            "RGB_SAI"
+          ],
+          "label": "S+",
+          "gloss": "RGB underglow control."
+        },
+        {
+          "raw": "&rgb_ug RGB_EFF",
+          "behavior": "rgb_ug",
+          "params": [
+            "RGB_EFF"
+          ],
+          "label": "Eff",
+          "gloss": "RGB underglow control."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&rgb_ug RGB_BRD",
+          "behavior": "rgb_ug",
+          "params": [
+            "RGB_BRD"
+          ],
+          "label": "B−",
+          "gloss": "RGB underglow control."
+        },
+        {
+          "raw": "&rgb_ug RGB_BRI",
+          "behavior": "rgb_ug",
+          "params": [
+            "RGB_BRI"
+          ],
+          "label": "B+",
+          "gloss": "RGB underglow control."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        },
+        {
+          "raw": "&trans",
+          "behavior": "trans",
+          "params": [],
+          "label": "▽",
+          "gloss": "Transparent — falls through to the next lower layer."
+        }
+      ]
+    }
+  ]
+}

@@ -21,6 +21,15 @@
     // Hold LOWER + RAISE together to activate ADJUST (tri-layer).
     // Do not bind &mo ADJUST — conditional_layers owns that layer.
 
+    behaviors {
+        /* Double-tap-hold notifies the companion (Raw HID 0x20) while held. */
+        mo_prev: mo_prev {
+            compatible = "zmk,behavior-mo-preview";
+            #binding-cells = <1>;
+            display-name = "Mo Preview";
+        };
+    };
+
     conditional_layers {
         compatible = "zmk,conditional-layers";
 
@@ -64,7 +73,7 @@
 &kp TAB    &kp Q   &kp W   &kp E     &kp R     &kp T                                     &kp Y      &kp U     &kp I      &kp O    &kp P     &kp MINUS
 &kp LCTRL  &kp A   &kp S   &kp D     &kp F     &kp G                                     &kp H      &kp J     &kp K      &kp L    &kp SEMI  &kp SQT
 &kp LSHFT  &kp Z   &kp X   &kp C     &kp V     &kp B      &kp C_MUTE    &rgb_ug RGB_TOG  &kp N      &kp M     &kp COMMA  &kp DOT  &kp FSLH  &kp RSHFT
-                           &kp LALT  &kp LGUI  &mo LOWER  &kp SPACE     &kp RET          &mo RAISE  &kp BSPC  &kp RGUI
+                           &kp LALT  &kp LGUI  &mo_prev LOWER  &kp SPACE     &kp RET          &mo_prev RAISE  &kp BSPC  &kp RGUI
             >;
 
             sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
