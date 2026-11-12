@@ -1,0 +1,7 @@
+file_format: "1"
+id: row_swap_diag
+name: Row Swap Diagnostic
+type: shield
+url: https://github.com/roberthmoller/pandakb-zmk
+requires: [pro_micro]
+features: []

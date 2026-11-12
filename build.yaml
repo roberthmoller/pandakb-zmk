@@ -12,6 +12,11 @@ include:
     shield: Lily58_R bare_right
     cmake-args: -DCONFIG_ZMK_DISPLAY=n -DCONFIG_ZMK_RGB_UNDERGLOW=n -DCONFIG_WS2812_STRIP=n -DCONFIG_EC11=n
     artifact-name: Lily58_right_matrix
+  # Swap home-row MCU pin with N-row pin on the right half (see row_swap_diag.overlay).
+  - board: nice_nano_v2
+    shield: Lily58_R row_swap_diag
+    cmake-args: -DCONFIG_ZMK_DISPLAY=n -DCONFIG_ZMK_RGB_UNDERGLOW=n -DCONFIG_WS2812_STRIP=n -DCONFIG_EC11=n
+    artifact-name: Lily58_right_row_swap
   # Base plain halves (Studio OFF, stock OLED/RGB Kconfig from .conf)
   - board: nice_nano_v2
     shield: Lily58_L

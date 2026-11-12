@@ -1,0 +1,16 @@
+# Copyright (c) 2026
+# SPDX-License-Identifier: MIT
+
+if SHIELD_ROW_SWAP_DIAG
+
+# Diagnostic only — keep the half minimal.
+config ZMK_DISPLAY
+	default n
+
+config ZMK_RGB_UNDERGLOW
+	default n
+
+config WS2812_STRIP
+	default n
+
+endif
