@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include <string.h>
+
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/device.h>
@@ -18,7 +20,7 @@
 
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
-static int invoke_media_status(const struct pandakb_badge_status *status) {
+static int invoke_widget_status(const struct pandakb_badge_status *status) {
 #if DT_NODE_EXISTS(DT_NODELABEL(badge))
     struct zmk_behavior_binding binding = {
         .behavior_dev = DEVICE_DT_NAME(DT_NODELABEL(badge)),
@@ -45,13 +47,39 @@ static void parse_set_media(const uint8_t *data, uint8_t length) {
         return;
     }
 
-    struct pandakb_badge_status status = {
-        .state = data[1],
-        .volume = data[2] > 100 ? 100 : data[2],
-    };
+    struct pandakb_badge_status status;
+    memset(&status, 0, sizeof(status));
+    status.mode = PANDAKB_WIDGET_MEDIA;
+    status.u.media.playback = data[1];
+    status.u.media.volume = data[2] > 100 ? 100 : data[2];
 
-    LOG_DBG("set_media state=%u vol=%u", status.state, status.volume);
-    invoke_media_status(&status);
+    LOG_DBG("set_media playback=%u vol=%u", status.u.media.playback, status.u.media.volume);
+    invoke_widget_status(&status);
+}
+
+static void parse_set_widget(const uint8_t *data, uint8_t length) {
+    if (length < 2) {
+        return;
+    }
+
+    struct pandakb_badge_status status;
+    memset(&status, 0, sizeof(status));
+    status.mode = data[1];
+
+    uint8_t copy = (length > 9) ? 7 : (uint8_t)((length > 2) ? (length - 2) : 0);
+    if (copy > 7) {
+        copy = 7;
+    }
+    if (copy > 0) {
+        memcpy(status.u.raw, &data[2], copy);
+    }
+
+    if (status.mode == PANDAKB_WIDGET_MEDIA && status.u.media.volume > 100) {
+        status.u.media.volume = 100;
+    }
+
+    LOG_DBG("set_widget mode=%u", status.mode);
+    invoke_widget_status(&status);
 }
 
 static int on_raw_hid_received(const zmk_event_t *eh) {
@@ -61,11 +89,13 @@ static int on_raw_hid_received(const zmk_event_t *eh) {
     }
 
     switch (ev->data[0]) {
+    case PANDAKB_HID_CMD_SET_WIDGET:
+        parse_set_widget(ev->data, ev->length);
+        break;
     case PANDAKB_HID_CMD_SET_MEDIA:
         parse_set_media(ev->data, ev->length);
         break;
     default:
-        /* Ignore legacy layer/badge commands — companion is media-only now. */
         break;
     }
 

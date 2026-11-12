@@ -8,7 +8,7 @@
         badge: badge {
             compatible = "zmk,behavior-game-badge";
             #binding-cells = <2>;
-            display-name = "Media Status";
+            display-name = "Widget Status";
         };
     };
 };

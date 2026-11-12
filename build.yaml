@@ -27,16 +27,25 @@ include:
     artifact-name: Lily58_right
 
 # Lily58 without dongle + OLED extras
-  # Lily58 with oled display(with nice_oled module)
-  # nice_oled provides a custom status screen; override base BUILT_IN to avoid duplicate symbols.
-  - board: nice_nano_v2 
-    shield: Lily58_L nice_oled
+  # Companion HID pair: left Raw HID + nice_oled, right typed widget OLED.
+  # Studio OFF so NVS keymap cannot override the repo keymap.
+  - board: nice_nano_v2
+    shield: Lily58_L nice_oled raw_hid_adapter app_layer
     cmake-args: -DCONFIG_ZMK_STUDIO=n -DCONFIG_ZMK_DISPLAY_STATUS_SCREEN_CUSTOM=y -DCONFIG_ZMK_DISPLAY_STATUS_SCREEN_BUILT_IN=n
     artifact-name: Lily58_left_oled
   - board: nice_nano_v2
-    shield: Lily58_R nice_oled
+    shield: Lily58_R game_badge
     cmake-args: -DCONFIG_ZMK_DISPLAY_STATUS_SCREEN_CUSTOM=y -DCONFIG_ZMK_DISPLAY_STATUS_SCREEN_BUILT_IN=n
     artifact-name: Lily58_right_oled
+  # Stock nice_oled on both halves (no Raw HID / game_badge) — fallback.
+  - board: nice_nano_v2
+    shield: Lily58_L nice_oled
+    cmake-args: -DCONFIG_ZMK_STUDIO=n -DCONFIG_ZMK_DISPLAY_STATUS_SCREEN_CUSTOM=y -DCONFIG_ZMK_DISPLAY_STATUS_SCREEN_BUILT_IN=n
+    artifact-name: Lily58_left_oled_stock
+  - board: nice_nano_v2
+    shield: Lily58_R nice_oled
+    cmake-args: -DCONFIG_ZMK_DISPLAY_STATUS_SCREEN_CUSTOM=y -DCONFIG_ZMK_DISPLAY_STATUS_SCREEN_BUILT_IN=n
+    artifact-name: Lily58_right_oled_stock
   # Diagnostic bare right (no OLED/RGB)
   - board: nice_nano_v2
     shield: Lily58_R bare_right

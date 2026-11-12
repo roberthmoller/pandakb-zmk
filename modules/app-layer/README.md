@@ -1,9 +1,9 @@
 # PandaKB app-layer module
 
-Raw HID media status for the Lily58 OLED build:
+Typed right-OLED widgets driven by the companion over Raw HID:
 
-- Host sends `SET_MEDIA` (play/pause/stop + volume 0–100)
-- Central applies it and syncs to the right half via a global-locality behavior
-- Right OLED: battery + link, then media widgets (no animation)
+- Host sends `SET_WIDGET` (`idle` / `media` / `lol` / `ide`) — see [PROTOCOL.md](PROTOCOL.md)
+- Central syncs an 8-byte status to the right half via the global `badge` behavior
+- Right OLED (`game_badge`): link + battery header, then the active mode body (no animation)
 
-Shields live in `boards/shields/app_layer` and `boards/shields/game_badge`.
+Shields: `boards/shields/app_layer` (left Raw HID) and `boards/shields/game_badge` (right screen).

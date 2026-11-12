@@ -56,6 +56,17 @@ static void init_rect_dsc(lv_draw_rect_dsc_t *rect_dsc, lv_color_t bg_color) {
     rect_dsc->bg_color = bg_color;
 }
 
+static void copy_padded(char *dst, size_t dst_len, const uint8_t *src, size_t src_len) {
+    size_t n = src_len < (dst_len - 1) ? src_len : (dst_len - 1);
+    memcpy(dst, src, n);
+    dst[n] = '\0';
+    for (size_t i = 0; i < n; i++) {
+        if (dst[i] < 0x20 || dst[i] > 0x7e) {
+            dst[i] = '?';
+        }
+    }
+}
+
 /* Match nice_oled / nice_view: draw portrait, then rotate onto the landscape panel. */
 static void rotate_canvas(void) {
     static lv_color_t cbuf_tmp[CANVAS_HEIGHT * CANVAS_HEIGHT];
@@ -117,6 +128,13 @@ static void draw_battery(void) {
 #endif
 }
 
+static void draw_idle_content(void) {
+    lv_draw_label_dsc_t label_dsc;
+    init_label_dsc(&label_dsc, LVGL_FOREGROUND, &lv_font_montserrat_12, LV_TEXT_ALIGN_CENTER);
+    lv_canvas_draw_text(canvas, 0, 52, CANVAS_WIDTH, &label_dsc, "PK");
+    lv_canvas_draw_text(canvas, 0, 72, CANVAS_WIDTH, &label_dsc, "idle");
+}
+
 static void draw_media_content(void) {
     lv_draw_label_dsc_t label_dsc;
     init_label_dsc(&label_dsc, LVGL_FOREGROUND, &lv_font_montserrat_12, LV_TEXT_ALIGN_CENTER);
@@ -126,40 +144,116 @@ static void draw_media_content(void) {
     init_rect_dsc(&rect_fg, LVGL_FOREGROUND);
     init_rect_dsc(&rect_bg, LVGL_BACKGROUND);
 
-    const struct pandakb_badge_status *s = &screen_state.status;
+    const struct pandakb_widget_media *m = &screen_state.status.u.media;
     const char *symbol = LV_SYMBOL_STOP;
-    const char *label = "Stop";
 
-    switch (s->state) {
+    switch (m->playback) {
     case PANDAKB_MEDIA_PLAYING:
         symbol = LV_SYMBOL_PLAY;
-        label = "Play";
         break;
     case PANDAKB_MEDIA_PAUSED:
         symbol = LV_SYMBOL_PAUSE;
-        label = "Pause";
         break;
-    case PANDAKB_MEDIA_STOPPED:
     default:
         symbol = LV_SYMBOL_STOP;
-        label = "Stop";
         break;
     }
 
     lv_canvas_draw_text(canvas, 0, 40, CANVAS_WIDTH, &label_dsc, symbol);
-    lv_canvas_draw_text(canvas, 0, 56, CANVAS_WIDTH, &label_dsc, label);
 
-    /* Volume meter under the playback state. */
+    char title[PANDAKB_WIDGET_TITLE_LEN + 1];
+    copy_padded(title, sizeof(title), m->title, PANDAKB_WIDGET_TITLE_LEN);
+    if (title[0] != '\0') {
+        lv_canvas_draw_text(canvas, 0, 56, CANVAS_WIDTH, &label_dsc, title);
+    }
+
     char vol_txt[8];
-    snprintk(vol_txt, sizeof(vol_txt), "%u", s->volume);
+    snprintk(vol_txt, sizeof(vol_txt), "%u", m->volume);
     lv_canvas_draw_text(canvas, 0, 78, CANVAS_WIDTH, &label_dsc, "Vol");
     lv_canvas_draw_text(canvas, 0, 92, CANVAS_WIDTH, &label_dsc, vol_txt);
 
     lv_canvas_draw_rect(canvas, 6, 110, 20, 8, &rect_fg);
     lv_canvas_draw_rect(canvas, 7, 111, 18, 6, &rect_bg);
-    uint8_t fill_w = (uint8_t)((s->volume * 16) / 100);
+    uint8_t fill_w = (uint8_t)((m->volume * 16) / 100);
     if (fill_w > 0) {
         lv_canvas_draw_rect(canvas, 8, 112, fill_w, 4, &rect_fg);
+    }
+}
+
+static void draw_lol_content(void) {
+    lv_draw_label_dsc_t label_dsc;
+    init_label_dsc(&label_dsc, LVGL_FOREGROUND, &lv_font_montserrat_12, LV_TEXT_ALIGN_CENTER);
+
+    const struct pandakb_widget_lol *g = &screen_state.status.u.lol;
+    lv_canvas_draw_text(canvas, 0, 40, CANVAS_WIDTH, &label_dsc, "LoL");
+
+    if (g->flags & PANDAKB_STATUS_FLAG_VALID) {
+        char kda[16];
+        char cs[16];
+        char lvl[16];
+        snprintk(kda, sizeof(kda), "%u/%u/%u", g->kills, g->deaths, g->assists);
+        snprintk(cs, sizeof(cs), "CS%u", pandakb_lol_cs(g));
+        snprintk(lvl, sizeof(lvl), "Lv%u", g->level);
+        lv_canvas_draw_text(canvas, 0, 58, CANVAS_WIDTH, &label_dsc, kda);
+        lv_canvas_draw_text(canvas, 0, 78, CANVAS_WIDTH, &label_dsc, cs);
+        lv_canvas_draw_text(canvas, 0, 98, CANVAS_WIDTH, &label_dsc, lvl);
+    } else {
+        lv_canvas_draw_text(canvas, 0, 70, CANVAS_WIDTH, &label_dsc, "...");
+    }
+}
+
+static void draw_ide_content(void) {
+    lv_draw_label_dsc_t label_dsc;
+    init_label_dsc(&label_dsc, LVGL_FOREGROUND, &lv_font_montserrat_12, LV_TEXT_ALIGN_CENTER);
+
+    const struct pandakb_widget_ide *ide = &screen_state.status.u.ide;
+    char tag[PANDAKB_WIDGET_TAG_LEN + 1];
+    copy_padded(tag, sizeof(tag), ide->tag, PANDAKB_WIDGET_TAG_LEN);
+
+    lv_canvas_draw_text(canvas, 0, 40, CANVAS_WIDTH, &label_dsc, "IDE");
+    if (tag[0] != '\0') {
+        lv_canvas_draw_text(canvas, 0, 56, CANVAS_WIDTH, &label_dsc, tag);
+    }
+
+    const char *build = "idle";
+    switch (ide->build) {
+    case PANDAKB_IDE_BUILDING:
+        build = "bld";
+        break;
+    case PANDAKB_IDE_OK:
+        build = "ok";
+        break;
+    case PANDAKB_IDE_FAIL:
+        build = "fail";
+        break;
+    default:
+        break;
+    }
+    lv_canvas_draw_text(canvas, 0, 74, CANVAS_WIDTH, &label_dsc, build);
+
+    char errs[12];
+    char warns[12];
+    snprintk(errs, sizeof(errs), "E%u", ide->errors);
+    snprintk(warns, sizeof(warns), "W%u", ide->warnings);
+    lv_canvas_draw_text(canvas, 0, 92, CANVAS_WIDTH, &label_dsc, errs);
+    lv_canvas_draw_text(canvas, 0, 108, CANVAS_WIDTH, &label_dsc, warns);
+}
+
+static void draw_mode_content(void) {
+    switch (screen_state.status.mode) {
+    case PANDAKB_WIDGET_MEDIA:
+        draw_media_content();
+        break;
+    case PANDAKB_WIDGET_LOL:
+        draw_lol_content();
+        break;
+    case PANDAKB_WIDGET_IDE:
+        draw_ide_content();
+        break;
+    case PANDAKB_WIDGET_IDLE:
+    default:
+        draw_idle_content();
+        break;
     }
 }
 
@@ -174,7 +268,7 @@ static void redraw_screen(void) {
 
     draw_connection();
     draw_battery();
-    draw_media_content();
+    draw_mode_content();
     rotate_canvas();
 }
 

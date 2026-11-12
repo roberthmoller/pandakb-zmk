@@ -2,8 +2,8 @@ import Combine
 import Foundation
 
 final class CompanionModel: ObservableObject {
-    /// Raw HID → keyboard is disabled while we stabilize the firmware.
-    /// Keep HIDClient around; flip this to true to re-enable later.
+    /// Legacy Swift driver — prefer the Tauri companion in `companion/zmkwiz`.
+    /// Keep HIDClient around for reference; HID is owned by Tauri now.
     static let hidEnabled = false
 
     @Published var status = MediaStatus(playback: .stopped, volume: 0)

@@ -4,3 +4,6 @@
 zmkwiz/node_modules/
 zmkwiz/.svelte-kit/
 zmkwiz/.vercel/
+zmkwiz/build/
+zmkwiz/src-tauri/target/
+zmkwiz/src-tauri/gen/
