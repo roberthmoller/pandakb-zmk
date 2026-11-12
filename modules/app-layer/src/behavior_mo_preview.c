@@ -11,9 +11,16 @@
 #include <zephyr/logging/log.h>
 
 #include <zmk/behavior.h>
-#include <zmk/keymap.h>
 
 #include <pandakb/protocol.h>
+
+/* Keymap layer APIs exist on non-split and split centrals only. */
+#if !IS_ENABLED(CONFIG_ZMK_SPLIT) || IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
+#include <zmk/keymap.h>
+#define PANDAKB_MO_PREV_HAS_KEYMAP 1
+#else
+#define PANDAKB_MO_PREV_HAS_KEYMAP 0
+#endif
 
 #if IS_ENABLED(CONFIG_RAW_HID)
 #include <raw_hid/events.h>
@@ -55,6 +62,7 @@ static void send_layer_preview(uint8_t show, uint8_t layer) {
 
 static int on_keymap_binding_pressed(struct zmk_behavior_binding *binding,
                                      struct zmk_behavior_binding_event event) {
+#if PANDAKB_MO_PREV_HAS_KEYMAP
     const int64_t now = k_uptime_get();
     const bool double_tap = state.armed && state.last_position == event.position &&
                             (now - state.last_release_ms) <= CONFIG_PANDAKB_MO_PREVIEW_TAP_MS;
@@ -70,10 +78,17 @@ static int on_keymap_binding_pressed(struct zmk_behavior_binding *binding,
     }
 
     return zmk_keymap_layer_activate(binding->param1);
+#else
+    /* Split peripheral: CENTRAL locality runs this on the central half. */
+    ARG_UNUSED(binding);
+    ARG_UNUSED(event);
+    return ZMK_BEHAVIOR_OPAQUE;
+#endif
 }
 
 static int on_keymap_binding_released(struct zmk_behavior_binding *binding,
                                       struct zmk_behavior_binding_event event) {
+#if PANDAKB_MO_PREV_HAS_KEYMAP
     LOG_DBG("mo_prev release pos %d layer %d previewing %d", event.position, binding->param1,
             state.previewing);
 
@@ -87,6 +102,11 @@ static int on_keymap_binding_released(struct zmk_behavior_binding *binding,
     state.armed = true;
 
     return zmk_keymap_layer_deactivate(binding->param1);
+#else
+    ARG_UNUSED(binding);
+    ARG_UNUSED(event);
+    return ZMK_BEHAVIOR_OPAQUE;
+#endif
 }
 
 #if IS_ENABLED(CONFIG_ZMK_BEHAVIOR_METADATA)
