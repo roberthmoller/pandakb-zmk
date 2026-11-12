@@ -1,0 +1,9 @@
+node_modules/
+.svelte-kit/
+.vercel/
+build/
+dist/
+src-tauri/target/
+src-tauri/gen/
+tauri-dev.log
+.DS_Store

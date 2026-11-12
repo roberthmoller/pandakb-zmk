@@ -1,0 +1,31 @@
+[package]
+name = "pandakb"
+version = "0.1.0"
+description = "PandaKB companion — keymap wizard + OLED widgets"
+authors = ["PandaKB"]
+edition = "2021"
+
+[lib]
+name = "pandakb_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "macos-private-api"] }
+tauri-plugin-log = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+hidapi = "2"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+parking_lot = "0.12"
+log = "0.4"
+thiserror = "2"
+tiny_http = "0.12"
+window-vibrancy = "0.8"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = "0.6"
+objc2-app-kit = { version = "0.3", features = ["NSWindow", "bitflags"] }
