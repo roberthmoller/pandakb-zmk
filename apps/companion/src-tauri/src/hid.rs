@@ -4,7 +4,7 @@ use std::time::{Duration, Instant};
 use hidapi::{HidApi, HidDevice};
 use log::{debug, warn};
 
-use crate::protocol::{self, LayerPreview, Widget};
+use crate::protocol::{self, InboundReport, Widget};
 
 pub struct HidClient {
     api: Mutex<HidApi>,
@@ -82,21 +82,14 @@ impl HidClient {
         }
     }
 
-    pub fn push_if_changed(&self, widget: &Widget) -> Result<bool, String> {
+    fn write_report(&self, payload: &[u8; protocol::REPORT_SIZE]) -> Result<(), String> {
         if !self.ensure_connected() {
             return Err("Keyboard Raw HID not connected (plug in left half USB)".into());
         }
 
-        {
-            let last = self.last_sent.lock().unwrap();
-            if last.as_ref() == Some(widget) {
-                return Ok(false);
-            }
-        }
-
         // hidapi expects a leading report ID byte (0 for this device).
         let mut out = vec![0u8; protocol::REPORT_SIZE + 1];
-        out[1..].copy_from_slice(&widget.to_report());
+        out[1..].copy_from_slice(payload);
 
         let mut guard = self.device.lock().unwrap();
         let Some(dev) = guard.as_mut() else {
@@ -104,10 +97,7 @@ impl HidClient {
         };
 
         match dev.write(&out) {
-            Ok(_) => {
-                *self.last_sent.lock().unwrap() = Some(widget.clone());
-                Ok(true)
-            }
+            Ok(_) => Ok(()),
             Err(e) => {
                 warn!("HID write failed: {e}");
                 *guard = None;
@@ -116,25 +106,66 @@ impl HidClient {
         }
     }
 
-    /// Drain available input reports; returns the latest LAYER_PREVIEW if any.
-    pub fn poll_layer_preview(&self) -> Option<LayerPreview> {
+    pub fn push_if_changed(&self, widget: &Widget) -> Result<bool, String> {
+        {
+            let last = self.last_sent.lock().unwrap();
+            if last.as_ref() == Some(widget) {
+                return Ok(false);
+            }
+        }
+
+        self.write_report(&widget.to_report())?;
+        *self.last_sent.lock().unwrap() = Some(widget.clone());
+        Ok(true)
+    }
+
+    /// Ask the keyboard to soft-enter UF2 bootloader (protocol 0x30).
+    pub fn enter_bootloader(&self, half: u8) -> Result<(), String> {
+        let mut payload = [0u8; protocol::REPORT_SIZE];
+        payload[0] = protocol::CMD_ENTER_BOOTLOADER;
+        payload[1] = half;
+        // Drop cached widget — device will disconnect.
+        *self.last_sent.lock().unwrap() = None;
+        self.write_report(&payload)?;
+        // Device resets; drop the handle so we reopen cleanly later.
+        *self.device.lock().unwrap() = None;
+        Ok(())
+    }
+
+    /// Sticky layer switch on the keyboard (protocol 0x31, `&to` semantics).
+    pub fn set_layer(&self, layer: u8) -> Result<(), String> {
+        let mut payload = [0u8; protocol::REPORT_SIZE];
+        payload[0] = protocol::CMD_SET_LAYER;
+        payload[1] = layer;
+        self.write_report(&payload)
+    }
+
+    /// Ask the keyboard to push a STATUS (0x22) report.
+    pub fn request_status(&self) -> Result<(), String> {
+        let mut payload = [0u8; protocol::REPORT_SIZE];
+        payload[0] = protocol::CMD_GET_STATUS;
+        self.write_report(&payload)
+    }
+
+    /// Drain available input reports (LAYER_PREVIEW / KEY_MATRIX / STATUS).
+    pub fn poll_inbound(&self) -> Vec<InboundReport> {
         if !self.ensure_connected() {
-            return None;
+            return Vec::new();
         }
 
         let mut guard = self.device.lock().unwrap();
         let Some(dev) = guard.as_mut() else {
-            return None;
+            return Vec::new();
         };
 
-        let mut latest = None;
+        let mut out = Vec::new();
         let mut buf = [0u8; protocol::REPORT_SIZE + 1];
         loop {
             match dev.read(&mut buf) {
                 Ok(0) => break,
                 Ok(n) => {
-                    if let Some(preview) = LayerPreview::from_report(&buf[..n]) {
-                        latest = Some(preview);
+                    if let Some(report) = InboundReport::from_report(&buf[..n]) {
+                        out.push(report);
                     }
                 }
                 Err(e) => {
@@ -152,6 +183,6 @@ impl HidClient {
                 }
             }
         }
-        latest
+        out
     }
 }

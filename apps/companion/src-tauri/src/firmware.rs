@@ -16,10 +16,21 @@ use serde::Serialize;
 use tauri::{AppHandle, Emitter, State};
 use thiserror::Error;
 
-const BOOTLOADER: &str = "/Volumes/RPI-RP2";
+/// nice!nano mounts as NICENANO; some UF2 boards use RPI-RP2.
+const BOOTLOADER_VOLUMES: &[&str] = &["/Volumes/NICENANO", "/Volumes/RPI-RP2"];
 const DOCKER_IMAGE: &str = "zmkfirmware/zmk-build-arm:stable";
-const DEFAULT_WEST_ROOT: &str =
-    "/Users/robert/Documents/Codex/2026-11-05/referenced-chatgpt-conversation-this-is-an/work/pandakb-lily";
+/// Stamp next to published UF2s — flash source of truth is `artifacts/`, not ~/.zmk.
+const ARTIFACT_STAMP: &str = "artifacts/.pandakb-companion.stamp";
+const WEST_SOURCE_STAMP: &str = "build/pandakb-companion.stamp";
+const SOURCE_PATHS: &[&str] = &[
+    "config",
+    "boards",
+    "modules/app-layer",
+    "build.yaml",
+    "zephyr/module.yml",
+];
+/// West build cache only. Published firmware lives in `<repo>/artifacts/`.
+const DEFAULT_WEST_ROOT: &str = "~/.zmk";
 
 const LEFT_SHIELD: &str = "Lily58_L nice_oled raw_hid_adapter app_layer";
 const RIGHT_SHIELD: &str = "Lily58_R game_badge";
@@ -50,6 +61,7 @@ fn err(msg: impl Into<String>) -> FirmwareError {
     FirmwareError::Msg(msg.into())
 }
 
+#[derive(Clone)]
 pub struct FirmwareBusy(pub Arc<AtomicBool>);
 
 impl Default for FirmwareBusy {
@@ -67,9 +79,31 @@ pub struct FirmwareStatus {
     pub west_bin: Option<String>,
     pub docker_ok: bool,
     pub bootloader_mounted: bool,
+    pub bootloader_path: Option<String>,
     pub left_uf2: Option<String>,
     pub right_uf2: Option<String>,
+    pub sources_stale: bool,
     pub busy: bool,
+}
+
+fn bootloader_path() -> Option<PathBuf> {
+    for p in BOOTLOADER_VOLUMES {
+        let path = PathBuf::from(p);
+        if path.is_dir() {
+            return Some(path);
+        }
+    }
+    // Numbered duplicates when both halves are in bootloader: NICENANO 1, etc.
+    if let Ok(entries) = fs::read_dir("/Volumes") {
+        for entry in entries.flatten() {
+            let name = entry.file_name();
+            let name = name.to_string_lossy();
+            if name.starts_with("NICENANO") || name.starts_with("RPI-RP2") {
+                return Some(entry.path());
+            }
+        }
+    }
+    None
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -124,10 +158,14 @@ fn is_west_root(p: &Path) -> bool {
     p.join(".west").is_dir() && (p.join("zmk").is_dir() || p.join("zephyr").is_dir())
 }
 
+fn is_legacy_west_root(p: &str) -> bool {
+    p.contains("referenced-chatgpt") || p.contains("pandakb-lily")
+}
+
 fn resolve_west_root(preferred: Option<String>) -> PathBuf {
     if let Some(p) = preferred {
         let t = p.trim();
-        if !t.is_empty() {
+        if !t.is_empty() && !is_legacy_west_root(t) {
             return expand_home(t);
         }
     }
@@ -137,16 +175,7 @@ fn resolve_west_root(preferred: Option<String>) -> PathBuf {
             return expand_home(t);
         }
     }
-    let default = PathBuf::from(DEFAULT_WEST_ROOT);
-    if default.is_dir() {
-        return default;
-    }
-    if let Some(repo) = detect_repo_root() {
-        return repo;
-    }
-    dirs_home()
-        .unwrap_or_else(|| PathBuf::from("/tmp"))
-        .join("pandakb-west")
+    expand_home(DEFAULT_WEST_ROOT)
 }
 
 fn which(bin: &str) -> Option<PathBuf> {
@@ -170,13 +199,110 @@ fn docker_ok() -> bool {
         .unwrap_or(false)
 }
 
-fn uf2_path(west: &Path, half: &str) -> PathBuf {
+fn west_uf2_path(west: &Path, half: &str) -> PathBuf {
     let build = if half == "left" {
         LEFT_BUILD_DIR
     } else {
         RIGHT_BUILD_DIR
     };
     west.join(build).join("zephyr/zmk.uf2")
+}
+
+fn artifact_uf2_path(repo: &Path, half: &str) -> PathBuf {
+    repo.join(format!("artifacts/Lily58_{half}_oled.uf2"))
+}
+
+/// Prefer repo `artifacts/` (what we flash); fall back to west build output.
+fn resolve_flash_uf2(west: &Path, repo: Option<&Path>, half: &str) -> Option<PathBuf> {
+    if let Some(repo) = repo {
+        let art = artifact_uf2_path(repo, half);
+        if art.is_file() {
+            return Some(art);
+        }
+    }
+    let west_uf2 = west_uf2_path(west, half);
+    west_uf2.is_file().then_some(west_uf2)
+}
+
+fn max_mtime(path: &Path, acc: &mut Option<std::time::SystemTime>) {
+    let Ok(meta) = fs::metadata(path) else {
+        return;
+    };
+    if meta.is_file() {
+        if let Ok(m) = meta.modified() {
+            *acc = Some(acc.map_or(m, |cur| cur.max(m)));
+        }
+        return;
+    }
+    if !meta.is_dir() {
+        return;
+    }
+    let Ok(entries) = fs::read_dir(path) else {
+        return;
+    };
+    for entry in entries.flatten() {
+        let name = entry.file_name();
+        if name == ".DS_Store" || name == ".git" || name == "node_modules" {
+            continue;
+        }
+        max_mtime(&entry.path(), acc);
+    }
+}
+
+fn sources_fingerprint(repo: &Path) -> String {
+    let mut latest: Option<std::time::SystemTime> = None;
+    for rel in SOURCE_PATHS {
+        max_mtime(&repo.join(rel), &mut latest);
+    }
+    match latest {
+        Some(t) => format!(
+            "{}",
+            t.duration_since(std::time::UNIX_EPOCH)
+                .map(|d| d.as_secs())
+                .unwrap_or(0)
+        ),
+        None => "missing".into(),
+    }
+}
+
+fn read_source_stamp(repo: &Path, west: &Path) -> Option<String> {
+    let artifact_stamp = repo.join(ARTIFACT_STAMP);
+    if let Ok(prev) = fs::read_to_string(&artifact_stamp) {
+        return Some(prev);
+    }
+    fs::read_to_string(west.join(WEST_SOURCE_STAMP)).ok()
+}
+
+fn sources_are_stale(west: &Path, repo: Option<&Path>) -> bool {
+    let Some(repo) = repo else {
+        return !west_uf2_path(west, "left").is_file() || !west_uf2_path(west, "right").is_file();
+    };
+    let left = artifact_uf2_path(repo, "left");
+    let right = artifact_uf2_path(repo, "right");
+    if !left.is_file() || !right.is_file() {
+        return true;
+    }
+    let Some(prev) = read_source_stamp(repo, west) else {
+        return true;
+    };
+    prev.trim() != sources_fingerprint(repo)
+}
+
+fn write_source_stamp(west: &Path, repo: Option<&Path>) -> FwResult<()> {
+    let Some(repo) = repo else {
+        return Ok(());
+    };
+    let fp = sources_fingerprint(repo);
+    let artifact_stamp = repo.join(ARTIFACT_STAMP);
+    if let Some(parent) = artifact_stamp.parent() {
+        fs::create_dir_all(parent).map_err(|e| err(e.to_string()))?;
+    }
+    fs::write(&artifact_stamp, &fp).map_err(|e| err(e.to_string()))?;
+    let west_stamp = west.join(WEST_SOURCE_STAMP);
+    if let Some(parent) = west_stamp.parent() {
+        fs::create_dir_all(parent).map_err(|e| err(e.to_string()))?;
+    }
+    fs::write(&west_stamp, fp).map_err(|e| err(e.to_string()))
 }
 
 fn emit_log(app: &AppHandle, line: impl AsRef<str>) {
@@ -196,6 +322,23 @@ fn sync_repo_into_west(app: &AppHandle, repo: &Path, west: &Path) -> FwResult<()
 
     copy_dir_contents(&repo.join("config"), &west.join("config"), app)?;
     copy_dir_contents(&repo.join("boards"), &west.join("boards"), app)?;
+
+    // ZMK_CONFIG discovers shields under config/boards/shields. Copy only the
+    // companion shields there so BOARD_ROOT=/work is unnecessary (and so broken
+    // experimental shields under boards/ don't poison Kconfig).
+    let cfg_shields = west.join("config/boards/shields");
+    fs::create_dir_all(&cfg_shields).map_err(|e| err(e.to_string()))?;
+    for name in ["Lily58", "app_layer", "game_badge"] {
+        let from = repo.join("boards/shields").join(name);
+        if from.is_dir() {
+            let to = cfg_shields.join(name);
+            if to.exists() {
+                fs::remove_dir_all(&to).map_err(|e| err(e.to_string()))?;
+            }
+            copy_dir_recursive(&from, &to).map_err(|e| err(e.to_string()))?;
+            emit_log(app, format!("  synced config/boards/shields/{name}"));
+        }
+    }
 
     let app_layer_src = repo.join("modules/app-layer");
     let app_layer_dst = west.join("modules/app-layer");
@@ -315,24 +458,38 @@ impl WestRunner {
                 let mut cmd = Command::new(west);
                 cmd.args(args)
                     .current_dir(west_root)
+                    .env("ZEPHYR_BASE", west_root.join("zephyr"))
                     .stdout(Stdio::piped())
                     .stderr(Stdio::piped());
                 stream_command(app, &mut cmd)
             }
             Self::Docker => {
+                // Bind-mounts are owned by the host user; git inside the container
+                // (root) refuses them as "dubious ownership", which breaks west's
+                // manifest import — so `west build` never registers. Mark the tree safe.
                 let mount = format!("{}:/work", west_root.display());
-                let mut docker_args: Vec<String> = vec![
-                    "run".into(),
+                let west_cmdline = shell_join(args);
+                let script = format!(
+                    "git config --global --add safe.directory '*' && \
+                     git config --global --add safe.directory /work && \
+                     export ZEPHYR_BASE=/work/zephyr && \
+                     west {west_cmdline}"
+                );
+                let docker_args = [
+                    "run".to_string(),
                     "--rm".into(),
                     "-v".into(),
                     mount,
                     "-w".into(),
                     "/work".into(),
+                    "-e".into(),
+                    "ZEPHYR_BASE=/work/zephyr".into(),
                     DOCKER_IMAGE.into(),
-                    "west".into(),
+                    "bash".into(),
+                    "-lc".into(),
+                    script.clone(),
                 ];
-                docker_args.extend(args.iter().cloned());
-                emit_log(app, format!("$ docker {}", docker_args.join(" ")));
+                emit_log(app, format!("$ docker run … bash -lc {script:?}"));
                 let mut cmd = Command::new("docker");
                 cmd.args(&docker_args)
                     .stdout(Stdio::piped())
@@ -341,6 +498,22 @@ impl WestRunner {
             }
         }
     }
+}
+
+/// Quote args for `bash -lc` so spaces in `-DSHIELD=…` stay one token.
+fn shell_join(args: &[String]) -> String {
+    args.iter()
+        .map(|a| {
+            if a.is_empty() {
+                "''".into()
+            } else if a.chars().any(|c| c.is_whitespace() || "\"'\\$`!".contains(c)) {
+                format!("'{}'", a.replace('\'', "'\"'\"'"))
+            } else {
+                a.clone()
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 fn stream_command(app: &AppHandle, cmd: &mut Command) -> FwResult<i32> {
@@ -382,14 +555,16 @@ fn build_args(half: &str) -> Vec<String> {
         "-d".into(),
         dir.into(),
         "-b".into(),
-        "nice_nano_v2".into(),
+        // Zephyr hardware model (nice!nano v2). Legacy alias `nice_nano_v2` no longer resolves.
+        "nice_nano/nrf52840/zmk".into(),
         "--".into(),
         format!("-DSHIELD={shield}"),
         "-DZMK_CONFIG=/work/config".into(),
-        "-DBOARD_ROOT=/work".into(),
-        "-DZEPHYR_EXTRA_MODULES=/work/modules/app-layer".into(),
+        "-DZephyr_DIR=/work/zephyr/share/zephyr-package/cmake".into(),
+        // Must include zmk app modules — a lone EXTRA_MODULES path replaces them and
+        // nice_nano boards disappear.
+        "-DZEPHYR_EXTRA_MODULES=/work/zmk/app/module;/work/zmk/app/keymap-module;/work/modules/app-layer".into(),
     ];
-    // Native west: paths must be host paths — fix up below in caller if needed.
     for part in cmake.split_whitespace() {
         args.push(part.to_string());
     }
@@ -399,19 +574,34 @@ fn build_args(half: &str) -> Vec<String> {
 fn build_args_for_runner(runner: &WestRunner, half: &str, west_root: &Path) -> Vec<String> {
     let mut args = build_args(half);
     if let WestRunner::Native(_) = runner {
-        // Rewrite docker-style absolute /work paths to host west root.
         let root = west_root.display().to_string();
         for a in &mut args {
             if a.starts_with("-DZMK_CONFIG=") {
                 *a = format!("-DZMK_CONFIG={root}/config");
-            } else if a.starts_with("-DBOARD_ROOT=") {
-                *a = format!("-DBOARD_ROOT={root}");
+            } else if a.starts_with("-DZephyr_DIR=") {
+                *a = format!("-DZephyr_DIR={root}/zephyr/share/zephyr-package/cmake");
             } else if a.starts_with("-DZEPHYR_EXTRA_MODULES=") {
-                *a = format!("-DZEPHYR_EXTRA_MODULES={root}/modules/app-layer");
+                *a = format!(
+                    "-DZEPHYR_EXTRA_MODULES={root}/zmk/app/module;{root}/zmk/app/keymap-module;{root}/modules/app-layer"
+                );
             }
         }
     }
     args
+}
+
+/// Keep zephyr.base relative so docker (/work) and native hosts both resolve it.
+fn ensure_west_config(west: &Path) -> FwResult<()> {
+    let cfg = west.join(".west/config");
+    if !cfg.is_file() {
+        return Ok(());
+    }
+    let text = fs::read_to_string(&cfg).map_err(|e| err(e.to_string()))?;
+    if text.contains("base = /work/zephyr") {
+        let fixed = text.replace("base = /work/zephyr", "base = zephyr");
+        fs::write(&cfg, fixed).map_err(|e| err(e.to_string()))?;
+    }
+    Ok(())
 }
 
 fn copy_artifacts(app: &AppHandle, west: &Path, repo: Option<&Path>) -> FwResult<()> {
@@ -423,8 +613,8 @@ fn copy_artifacts(app: &AppHandle, west: &Path, repo: Option<&Path>) -> FwResult
     let pair = out.join("flash-companion-oled");
     fs::create_dir_all(&pair).map_err(|e| err(e.to_string()))?;
 
-    let left = uf2_path(west, "left");
-    let right = uf2_path(west, "right");
+    let left = west_uf2_path(west, "left");
+    let right = west_uf2_path(west, "right");
     if left.is_file() {
         let dest = out.join("Lily58_left_oled.uf2");
         fs::copy(&left, &dest).map_err(|e| err(e.to_string()))?;
@@ -437,6 +627,7 @@ fn copy_artifacts(app: &AppHandle, west: &Path, repo: Option<&Path>) -> FwResult
         fs::copy(&right, pair.join("Lily58_right_oled.uf2")).map_err(|e| err(e.to_string()))?;
         emit_log(app, format!("Copied right → {}", dest.display()));
     }
+    write_source_stamp(west, Some(repo))?;
     Ok(())
 }
 
@@ -455,46 +646,54 @@ fn end(busy: &FirmwareBusy) {
     busy.0.store(false, Ordering::SeqCst);
 }
 
-#[tauri::command]
-pub fn firmware_status(west_root: Option<String>, busy: State<'_, FirmwareBusy>) -> FirmwareStatus {
+pub fn firmware_status_of(west_root: Option<String>, busy: &FirmwareBusy) -> FirmwareStatus {
     let west = resolve_west_root(west_root);
-    let left = uf2_path(&west, "left");
-    let right = uf2_path(&west, "right");
+    let repo = detect_repo_root();
+    let left = resolve_flash_uf2(&west, repo.as_deref(), "left");
+    let right = resolve_flash_uf2(&west, repo.as_deref(), "right");
+    let boot = bootloader_path();
     FirmwareStatus {
         west_root: west.display().to_string(),
         west_root_ok: is_west_root(&west),
-        repo_root: detect_repo_root().map(|p| p.display().to_string()),
+        repo_root: repo.as_ref().map(|p| p.display().to_string()),
         west_bin: which("west").map(|p| p.display().to_string()),
         docker_ok: which("docker").is_some() && docker_ok(),
-        bootloader_mounted: Path::new(BOOTLOADER).is_dir(),
-        left_uf2: left.is_file().then(|| left.display().to_string()),
-        right_uf2: right.is_file().then(|| right.display().to_string()),
+        bootloader_mounted: boot.is_some(),
+        bootloader_path: boot.as_ref().map(|p| p.display().to_string()),
+        left_uf2: left.as_ref().map(|p| p.display().to_string()),
+        right_uf2: right.as_ref().map(|p| p.display().to_string()),
+        sources_stale: sources_are_stale(&west, repo.as_deref()),
         busy: busy.0.load(Ordering::SeqCst),
     }
 }
 
 #[tauri::command]
-pub fn firmware_west_update(
-    app: AppHandle,
-    busy: State<'_, FirmwareBusy>,
+pub fn firmware_status(west_root: Option<String>, busy: State<'_, FirmwareBusy>) -> FirmwareStatus {
+    firmware_status_of(west_root, &busy)
+}
+
+pub fn run_firmware_west_update(
+    app: &AppHandle,
+    busy: &FirmwareBusy,
     west_root: Option<String>,
 ) -> FwResult<()> {
-    try_begin(&busy)?;
+    try_begin(busy)?;
     let result = (|| {
         let west = resolve_west_root(west_root);
         fs::create_dir_all(&west).map_err(|e| err(e.to_string()))?;
+        ensure_west_config(&west)?;
         let runner = WestRunner::detect()?;
         if let Some(repo) = detect_repo_root() {
-            sync_repo_into_west(&app, &repo, &west)?;
+            sync_repo_into_west(app, &repo, &west)?;
         } else {
             emit_log(
-                &app,
+                app,
                 "No pandakb-zmk repo root detected — updating west tree as-is",
             );
         }
         if !west.join(".west").is_dir() {
             let code = runner.run_stream(
-                &app,
+                app,
                 &west,
                 &["init".into(), "-l".into(), "config".into()],
                 "west init -l config",
@@ -503,15 +702,95 @@ pub fn firmware_west_update(
                 return Err(err(format!("west init failed ({code})")));
             }
         }
-        let code = runner.run_stream(&app, &west, &["update".into()], "west update")?;
+        let code = runner.run_stream(app, &west, &["update".into()], "west update")?;
         if code != 0 {
             return Err(err(format!("west update failed ({code})")));
         }
-        emit_log(&app, "\nOK west update\n");
+        emit_log(app, "\nOK west update\n");
         let _ = app.emit("firmware://done", "update-ok");
         Ok(())
     })();
-    end(&busy);
+    end(busy);
+    result
+}
+
+#[tauri::command]
+pub fn firmware_west_update(
+    app: AppHandle,
+    busy: State<'_, FirmwareBusy>,
+    west_root: Option<String>,
+) -> FwResult<()> {
+    run_firmware_west_update(&app, &busy, west_root)
+}
+
+pub fn run_firmware_build(
+    app: &AppHandle,
+    busy: &FirmwareBusy,
+    west_root: Option<String>,
+    update_first: bool,
+    force: Option<bool>,
+) -> FwResult<()> {
+    try_begin(busy)?;
+    let result = (|| {
+        let west = resolve_west_root(west_root);
+        let repo = detect_repo_root().ok_or_else(|| {
+            err("Could not find pandakb-zmk repo (expected scripts/build-companion.sh)")
+        })?;
+        let script = repo.join("scripts/build-companion.sh");
+        if !script.is_file() {
+            return Err(err(format!("Missing {}", script.display())));
+        }
+
+        if update_first {
+            ensure_west_config(&west)?;
+            let runner = WestRunner::detect()?;
+            let code = runner.run_stream(app, &west, &["update".into()], "west update")?;
+            if code != 0 {
+                return Err(err(format!("west update failed ({code})")));
+            }
+        }
+
+        emit_log(app, "\n── scripts/build-companion.sh ──");
+        let mut cmdline = format!("bash {} ", script.display());
+        if force.unwrap_or(false) {
+            cmdline.push_str("--force ");
+        }
+        cmdline.push_str(&format!("(WEST_ROOT={})", west.display()));
+        emit_log(app, format!("$ {cmdline}"));
+
+        let mut cmd = Command::new("bash");
+        cmd.arg(&script);
+        if force.unwrap_or(false) {
+            cmd.arg("--force");
+        }
+        cmd.current_dir(&repo)
+            .env("WEST_ROOT", &west)
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped());
+        let code = stream_command(app, &mut cmd)?;
+        if code != 0 {
+            return Err(err(format!(
+                "build-companion.sh failed ({code}). Native west required — see script output / README."
+            )));
+        }
+
+        let left = repo.join("artifacts/Lily58_left_oled.uf2");
+        let right = repo.join("artifacts/Lily58_right_oled.uf2");
+        if !left.is_file() || !right.is_file() {
+            return Err(err(
+                "Build finished but artifacts/Lily58_*_oled.uf2 missing",
+            ));
+        }
+        emit_log(app, format!("LEFT_UF2={}", left.display()));
+        emit_log(app, format!("RIGHT_UF2={}", right.display()));
+        emit_log(app, "\nOK\n");
+        let _ = app.emit("firmware://done", "build-ok");
+        Ok(())
+    })();
+    end(busy);
+    if result.is_err() {
+        let _ = app.emit("firmware://done", "build-error");
+    }
     result
 }
 
@@ -521,73 +800,9 @@ pub fn firmware_build(
     busy: State<'_, FirmwareBusy>,
     west_root: Option<String>,
     update_first: bool,
+    force: Option<bool>,
 ) -> FwResult<()> {
-    try_begin(&busy)?;
-    let result = (|| {
-        let west = resolve_west_root(west_root);
-        fs::create_dir_all(&west).map_err(|e| err(e.to_string()))?;
-        let runner = WestRunner::detect()?;
-        let repo = detect_repo_root();
-
-        if let Some(ref repo) = repo {
-            sync_repo_into_west(&app, repo, &west)?;
-        } else {
-            emit_log(
-                &app,
-                "Warning: pandakb-zmk repo not found — building whatever is in the west tree",
-            );
-        }
-
-        if !is_west_root(&west) {
-            if !west.join("config/west.yml").is_file() {
-                return Err(err(format!(
-                    "Not a west workspace and no config/west.yml at {}",
-                    west.display()
-                )));
-            }
-            let code = runner.run_stream(
-                &app,
-                &west,
-                &["init".into(), "-l".into(), "config".into()],
-                "west init -l config",
-            )?;
-            if code != 0 {
-                return Err(err(format!("west init failed ({code})")));
-            }
-            let code = runner.run_stream(&app, &west, &["update".into()], "west update")?;
-            if code != 0 {
-                return Err(err(format!("west update failed ({code})")));
-            }
-        } else if update_first {
-            let code = runner.run_stream(&app, &west, &["update".into()], "west update")?;
-            if code != 0 {
-                return Err(err(format!("west update failed ({code})")));
-            }
-        }
-
-        for half in ["left", "right"] {
-            let args = build_args_for_runner(&runner, half, &west);
-            let code = runner.run_stream(&app, &west, &args, &format!("{half} companion OLED"))?;
-            if code != 0 {
-                return Err(err(format!("{half} build failed ({code})")));
-            }
-            let uf2 = uf2_path(&west, half);
-            if !uf2.is_file() {
-                return Err(err(format!("Build OK but UF2 missing: {}", uf2.display())));
-            }
-            emit_log(&app, format!("{}_UF2={}", half.to_uppercase(), uf2.display()));
-        }
-
-        copy_artifacts(&app, &west, repo.as_deref())?;
-        emit_log(&app, "\nOK\n");
-        let _ = app.emit("firmware://done", "build-ok");
-        Ok(())
-    })();
-    end(&busy);
-    if result.is_err() {
-        let _ = app.emit("firmware://done", "build-error");
-    }
-    result
+    run_firmware_build(&app, &busy, west_root, update_first, force)
 }
 
 #[tauri::command]
@@ -596,30 +811,21 @@ pub fn firmware_flash(half: String, west_root: Option<String>) -> FwResult<Flash
         return Err(err("half must be left or right"));
     }
     let west = resolve_west_root(west_root);
-    let uf2 = uf2_path(&west, &half);
-    if !uf2.is_file() {
-        // Fall back to artifacts/ from the repo if present.
-        if let Some(repo) = detect_repo_root() {
-            let alt = repo.join(format!("artifacts/Lily58_{half}_oled.uf2"));
-            if alt.is_file() {
-                return flash_file(&half, &alt);
-            }
-        }
+    let repo = detect_repo_root();
+    let Some(uf2) = resolve_flash_uf2(&west, repo.as_deref(), &half) else {
         return Err(err(format!(
-            "UF2 missing: {} — build first",
-            uf2.display()
+            "UF2 missing for {half} — expected artifacts/Lily58_{half}_oled.uf2 (run ./scripts/build-companion.sh)"
         )));
-    }
+    };
     flash_file(&half, &uf2)
 }
 
 fn flash_file(half: &str, uf2: &Path) -> FwResult<FlashResult> {
-    let boot = Path::new(BOOTLOADER);
-    if !boot.is_dir() {
+    let Some(boot) = bootloader_path() else {
         return Err(err(
-            "Bootloader not mounted at /Volumes/RPI-RP2 — double-reset the nice!nano, then retry",
+            "Bootloader not mounted (expected /Volumes/NICENANO or /Volumes/RPI-RP2) — soft-enter or double-reset, then retry",
         ));
-    }
+    };
     let dest = boot.join(format!("zmk_{half}.uf2"));
     fs::copy(uf2, &dest).map_err(|e| {
         err(format!(
@@ -638,7 +844,7 @@ pub fn firmware_wait_bootloader(timeout_secs: Option<u64>) -> FwResult<bool> {
     let timeout = Duration::from_secs(timeout_secs.unwrap_or(60));
     let start = std::time::Instant::now();
     while start.elapsed() < timeout {
-        if Path::new(BOOTLOADER).is_dir() {
+        if bootloader_path().is_some() {
             return Ok(true);
         }
         thread::sleep(Duration::from_millis(400));

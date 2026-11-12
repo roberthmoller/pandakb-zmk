@@ -1,7 +1,29 @@
-const DEFAULT_WEST_ROOT =
-	'/Users/robert/Documents/Codex/2026-11-05/referenced-chatgpt-conversation-this-is-an/work/pandakb-lily';
+const DEFAULT_WEST_ROOT = '~/.zmk';
 
-export type FlashStep = 'setup' | 'build' | 'flash-left' | 'flash-right' | 'done';
+function initialWestRoot(): string {
+	if (typeof localStorage === 'undefined') return DEFAULT_WEST_ROOT;
+	const stored = localStorage.getItem('zmkwiz.westRoot');
+	if (!stored) return DEFAULT_WEST_ROOT;
+	// Migrate away from the old Codex pandakb-lily path.
+	if (stored.includes('referenced-chatgpt') || stored.includes('pandakb-lily')) {
+		localStorage.setItem('zmkwiz.westRoot', DEFAULT_WEST_ROOT);
+		return DEFAULT_WEST_ROOT;
+	}
+	return stored;
+}
+
+/** Happy path phases stay quiet; wizard* means the user must act. */
+export type FlashPhase =
+	| 'idle'
+	| 'building'
+	| 'flash-left'
+	| 'flash-right'
+	| 'wizard-right'
+	| 'wizard-bootloader'
+	| 'done'
+	| 'error';
+
+export type WizardKind = 'right-cable' | 'bootloader' | null;
 
 export type FirmwareStatus = {
 	westRoot: string;
@@ -10,23 +32,26 @@ export type FirmwareStatus = {
 	westBin: string | null;
 	dockerOk: boolean;
 	bootloaderMounted: boolean;
+	bootloaderPath: string | null;
 	leftUf2: string | null;
 	rightUf2: string | null;
+	sourcesStale: boolean;
 	busy: boolean;
 };
 
 class FirmwareState {
-	westRoot = $state(
-		(typeof localStorage !== 'undefined' && localStorage.getItem('zmkwiz.westRoot')) ||
-			DEFAULT_WEST_ROOT
-	);
-	step = $state<FlashStep>('setup');
+	westRoot = $state(initialWestRoot());
+	phase = $state<FlashPhase>('idle');
+	wizard = $state<WizardKind>(null);
+	wizardHalf = $state<'left' | 'right'>('left');
 	buildLog = $state('');
-	buildStatus = $state<'idle' | 'running' | 'ok' | 'error'>('idle');
 	updateFirst = $state(false);
+	forceBuild = $state(false);
+	showAdvanced = $state(false);
+	showLog = $state(false);
 	status = $state<FirmwareStatus | null>(null);
-	flashStatus = $state<string | null>(null);
-	waitingBootloader = $state(false);
+	message = $state<string | null>(null);
+	running = $state(false);
 
 	persistWestRoot() {
 		if (typeof localStorage !== 'undefined') {
@@ -40,6 +65,10 @@ class FirmwareState {
 
 	resetLog() {
 		this.buildLog = '';
+	}
+
+	clearWizard() {
+		this.wizard = null;
 	}
 }
 

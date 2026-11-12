@@ -87,6 +87,28 @@ function digitLabel(code: string): string | null {
 	return null;
 }
 
+/** Layer index / alias → short keycap label (matches Lily58.keymap order). */
+function layerShortLabel(param: string | undefined): string {
+	const key = (param ?? '').toLowerCase();
+	const named: Record<string, string> = {
+		'0': 'Base',
+		base: 'Base',
+		'1': 'Lower',
+		lower: 'Lower',
+		'2': 'Raise',
+		raise: 'Raise',
+		upper: 'Raise',
+		'3': 'Adj',
+		adjust: 'Adj',
+		'4': 'WoW',
+		wow: 'WoW',
+		'5': 'LoL',
+		lol: 'LoL',
+		league: 'LoL'
+	};
+	return named[key] ?? (param ? `L${param}` : 'L?');
+}
+
 export function labelForCode(code: string): string {
 	return CODE_LABELS[code] ?? digitLabel(code) ?? code;
 }
@@ -124,20 +146,22 @@ export function parseBinding(raw: string): {
 	}
 
 	if (behavior === 'mo' || behavior === 'mo_prev') {
+		const layer = layerShortLabel(params[0]);
 		return {
 			behavior,
 			params,
-			label: `L${params[0] ?? '?'}`,
+			label: layer,
 			gloss: `${glossForBehavior(behavior)} Target layer ${params[0] ?? '?'}.`
 		};
 	}
 
 	if (behavior === 'to' || behavior === 'tog') {
-		const prefix = behavior === 'to' ? 'TO' : 'TG';
+		const layer = layerShortLabel(params[0]);
+		const prefix = behavior === 'to' ? '' : 'TG ';
 		return {
 			behavior,
 			params,
-			label: `${prefix}${params[0] ?? '?'}`,
+			label: `${prefix}${layer}`,
 			gloss: `${glossForBehavior(behavior)} Target layer ${params[0] ?? '?'}.`
 		};
 	}

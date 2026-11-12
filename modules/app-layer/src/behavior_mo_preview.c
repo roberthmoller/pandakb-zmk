@@ -12,7 +12,7 @@
 
 #include <zmk/behavior.h>
 
-#include <pandakb/protocol.h>
+#include <pandakb/overlay.h>
 
 /* Keymap layer APIs exist on non-split and split centrals only. */
 #if !IS_ENABLED(CONFIG_ZMK_SPLIT) || IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
@@ -20,10 +20,6 @@
 #define PANDAKB_MO_PREV_HAS_KEYMAP 1
 #else
 #define PANDAKB_MO_PREV_HAS_KEYMAP 0
-#endif
-
-#if IS_ENABLED(CONFIG_RAW_HID)
-#include <raw_hid/events.h>
 #endif
 
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
@@ -43,23 +39,6 @@ struct mo_preview_state {
 
 static struct mo_preview_state state;
 
-static void send_layer_preview(uint8_t show, uint8_t layer) {
-#if IS_ENABLED(CONFIG_RAW_HID)
-    uint8_t data[32] = {0};
-    data[0] = PANDAKB_HID_CMD_LAYER_PREVIEW;
-    data[1] = show;
-    data[2] = layer;
-
-    raise_raw_hid_sent_event((struct raw_hid_sent_event){
-        .data = data,
-        .length = sizeof(data),
-    });
-#else
-    ARG_UNUSED(show);
-    ARG_UNUSED(layer);
-#endif
-}
-
 static int on_keymap_binding_pressed(struct zmk_behavior_binding *binding,
                                      struct zmk_behavior_binding_event event) {
 #if PANDAKB_MO_PREV_HAS_KEYMAP
@@ -74,7 +53,7 @@ static int on_keymap_binding_pressed(struct zmk_behavior_binding *binding,
 
     if (double_tap) {
         state.previewing = true;
-        send_layer_preview(PANDAKB_LAYER_PREVIEW_SHOW, (uint8_t)binding->param1);
+        pandakb_overlay_preview_begin();
     }
 
     return zmk_keymap_layer_activate(binding->param1);
@@ -93,8 +72,8 @@ static int on_keymap_binding_released(struct zmk_behavior_binding *binding,
             state.previewing);
 
     if (state.previewing) {
-        send_layer_preview(PANDAKB_LAYER_PREVIEW_HIDE, (uint8_t)binding->param1);
         state.previewing = false;
+        pandakb_overlay_preview_end();
     }
 
     state.last_release_ms = k_uptime_get();

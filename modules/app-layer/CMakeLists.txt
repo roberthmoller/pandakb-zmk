@@ -5,12 +5,20 @@ zephyr_include_directories(include)
 zephyr_include_directories(${APPLICATION_SOURCE_DIR}/include)
 zephyr_include_directories(src)
 zephyr_library_sources(src/behavior_mo_preview.c)
+zephyr_library_sources(src/overlay_report.c)
+zephyr_library_sources(src/status_report.c)
 
 if(CONFIG_PANDAKB_APP_LAYER)
   zephyr_library_sources(src/badge_state.c)
   zephyr_library_sources(src/behavior_game_badge.c)
   zephyr_library_sources_ifdef(CONFIG_PANDAKB_APP_LAYER_RAW_HID src/raw_hid_commands.c)
   if(CONFIG_PANDAKB_GAME_BADGE_SCREEN)
-    zephyr_library_sources(src/badge_screen.c)
+    zephyr_library_sources(
+      src/badge_screen.c
+      src/art/buddy_0.c
+      src/art/buddy_1.c
+      src/art/buddy_2.c
+      src/art/buddy_3.c
+    )
   endif()
 endif()

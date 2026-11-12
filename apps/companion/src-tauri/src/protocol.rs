@@ -10,10 +10,31 @@ pub const REPORT_SIZE: usize = 32;
 pub const CMD_SET_MEDIA: u8 = 0x03;
 pub const CMD_SET_WIDGET: u8 = 0x10;
 pub const CMD_LAYER_PREVIEW: u8 = 0x20;
+pub const CMD_KEY_MATRIX: u8 = 0x21;
+pub const CMD_STATUS: u8 = 0x22;
+pub const CMD_ENTER_BOOTLOADER: u8 = 0x30;
+pub const CMD_SET_LAYER: u8 = 0x31;
+pub const CMD_GET_STATUS: u8 = 0x32;
+
+/// Battery SoC not yet reported by the keyboard.
+pub const BATTERY_UNKNOWN: u8 = 0xff;
+
+pub const BOOTLOADER_SELF: u8 = 0;
+pub const BOOTLOADER_LEFT: u8 = 1;
+pub const BOOTLOADER_RIGHT: u8 = 2;
+
+pub const LAYER_BASE: u8 = 0;
+pub const LAYER_LOWER: u8 = 1;
+pub const LAYER_RAISE: u8 = 2;
+pub const LAYER_ADJUST: u8 = 3;
+pub const LAYER_WOW: u8 = 4;
+pub const LAYER_LOL: u8 = 5;
 
 #[allow(dead_code)]
 pub const LAYER_PREVIEW_HIDE: u8 = 0;
 pub const LAYER_PREVIEW_SHOW: u8 = 1;
+
+pub const KEY_MATRIX_BYTES: usize = 8;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
 pub struct LayerPreview {
@@ -21,25 +42,109 @@ pub struct LayerPreview {
     pub layer: u8,
 }
 
-impl LayerPreview {
-    /// Parse a Raw HID input report. Accepts with or without a leading report-id byte.
-    pub fn from_report(data: &[u8]) -> Option<Self> {
-        let payload = if data.first() == Some(&CMD_LAYER_PREVIEW) {
-            data
-        } else if data.len() > 1 && data[0] == 0 && data[1] == CMD_LAYER_PREVIEW {
-            &data[1..]
-        } else {
-            return None;
-        };
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
+pub struct KeyMatrix {
+    /// Pressed matrix positions (Lily58 indices).
+    pub pressed: Vec<u8>,
+}
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
+pub struct BoardStatus {
+    /// Left (central) SoC 0–100, or [`BATTERY_UNKNOWN`].
+    pub left_battery: u8,
+    /// Right (peripheral) SoC 0–100, or [`BATTERY_UNKNOWN`].
+    pub right_battery: u8,
+    pub layer: u8,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum InboundReport {
+    LayerPreview(LayerPreview),
+    KeyMatrix(KeyMatrix),
+    Status(BoardStatus),
+}
+
+fn strip_report_id(data: &[u8]) -> &[u8] {
+    if data.first() == Some(&0) && data.len() > 1 {
+        &data[1..]
+    } else {
+        data
+    }
+}
+
+impl LayerPreview {
+    fn parse(payload: &[u8]) -> Option<Self> {
         if payload.len() < 3 || payload[0] != CMD_LAYER_PREVIEW {
             return None;
         }
-
         Some(Self {
             show: payload[1] == LAYER_PREVIEW_SHOW,
             layer: payload[2],
         })
+    }
+}
+
+impl KeyMatrix {
+    fn parse(payload: &[u8]) -> Option<Self> {
+        if payload.len() < 1 + KEY_MATRIX_BYTES || payload[0] != CMD_KEY_MATRIX {
+            return None;
+        }
+        let mut pressed = Vec::new();
+        for (byte_i, byte) in payload[1..1 + KEY_MATRIX_BYTES].iter().enumerate() {
+            for bit in 0..8u8 {
+                if byte & (1 << bit) != 0 {
+                    pressed.push((byte_i as u8) * 8 + bit);
+                }
+            }
+        }
+        Some(Self { pressed })
+    }
+}
+
+impl BoardStatus {
+    fn parse(payload: &[u8]) -> Option<Self> {
+        if payload.len() < 4 || payload[0] != CMD_STATUS {
+            return None;
+        }
+        Some(Self {
+            left_battery: payload[1],
+            right_battery: payload[2],
+            layer: payload[3],
+        })
+    }
+}
+
+impl InboundReport {
+    /// Parse a Raw HID input report. Accepts with or without a leading report-id byte.
+    pub fn from_report(data: &[u8]) -> Option<Self> {
+        let payload = strip_report_id(data);
+        match payload.first().copied()? {
+            CMD_LAYER_PREVIEW => LayerPreview::parse(payload).map(Self::LayerPreview),
+            CMD_KEY_MATRIX => KeyMatrix::parse(payload).map(Self::KeyMatrix),
+            CMD_STATUS => BoardStatus::parse(payload).map(Self::Status),
+            _ => None,
+        }
+    }
+}
+
+/// Short layer label for the menu bar (matches Lily58 companion keymap order).
+pub fn layer_menu_name(layer: u8) -> &'static str {
+    match layer {
+        LAYER_BASE => "Base",
+        LAYER_LOWER => "Lower",
+        LAYER_RAISE => "Raise",
+        LAYER_ADJUST => "Adjust",
+        LAYER_WOW => "WoW",
+        LAYER_LOL => "LoL",
+        _ => "—",
+    }
+}
+
+pub fn format_battery(soc: u8) -> String {
+    if soc == BATTERY_UNKNOWN || soc > 100 {
+        "–".into()
+    } else {
+        format!("{soc}%")
     }
 }
 

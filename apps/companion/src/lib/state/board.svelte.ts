@@ -107,24 +107,20 @@ class BoardState {
 		this.holdLayerId = null;
 	}
 
-	/** Firmware LAYER_PREVIEW (0x20) — show overlay layer while held. */
+	/** Firmware LAYER_PREVIEW (0x20) — show overlay layer while held / sticky. */
 	setFirmwarePreview(layerIndex: number | null) {
 		if (layerIndex == null) {
 			this.holdLayerId = this.#altHold ?? this.#inferredHold;
-			const moIndices = this.baseLayer.bindings
-				.map((b, i) => (isMomentaryLayer(b) ? i : -1))
-				.filter((i) => i >= 0);
-			this.pressedIndices = this.pressedIndices.filter((i) => !moIndices.includes(i));
+			this.pressedIndices = [];
 			return;
 		}
 		const target = this.board.layers[layerIndex];
 		this.holdLayerId = target?.id ?? null;
-		const mo = this.baseLayer.bindings.findIndex(
-			(b) => isMomentaryLayer(b) && b.params[0] === String(layerIndex)
-		);
-		if (mo >= 0 && !this.pressedIndices.includes(mo)) {
-			this.pressedIndices = [...this.pressedIndices, mo];
-		}
+	}
+
+	/** Firmware KEY_MATRIX (0x21) — live pressed positions for overlay highlight. */
+	setPressedFromMatrix(positions: number[]) {
+		this.pressedIndices = [...positions];
 	}
 
 	releaseHold() {

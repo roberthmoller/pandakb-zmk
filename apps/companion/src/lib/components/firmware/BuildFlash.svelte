@@ -76,8 +76,8 @@
 		</div>
 		<p class="mt-1 max-w-2xl text-sm text-muted-foreground">
 			Use this when Live remap has no free layer slots, or you need a Studio / west config change.
-			Point at your <code class="text-foreground">pandakb-lily</code> west tree, build both halves,
-			then flash each UF2 after a double-reset.
+			Flash copies <code class="text-foreground">artifacts/Lily58_*_oled.uf2</code> from this
+			repo. <code class="text-foreground">~/.zmk</code> is only the west build cache.
 		</p>
 	</div>
 

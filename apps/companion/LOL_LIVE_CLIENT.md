@@ -63,7 +63,7 @@ Chronological feed (also embedded in `allgamedata.events.Events`). Kill-related 
 
 Also: dragon / baron / herald, turret / inhib, game start / end.
 
-PandaKB watches new `EventID`s each poll (first poll only seeds the cursor so mid-match join does not replay history). When the local player is `KillerName` / `Acer` / `Recipient`, it packs a one-shot code into LoL flags bits 1–3; the right OLED inverts and shows `+` / `x2`…`x5` / `ACE` / `FB` for ~1.5s, then the companion clears the code on the next poll.
+PandaKB watches new `EventID`s each poll (first poll only seeds the cursor so mid-match join does not replay history). When the local player is `KillerName` / `Acer` / `Recipient`, it packs a one-shot code into LoL flags bits 1–3. The right OLED keeps a **black** body and plays a ~1.6s thematic flash (lit frame, streak pips, glyph + label — blade / droplet / crown by event) for `+` / `x2`…`x5` / `ACE` / `FB`, then the companion clears the code on the next poll.
 
 ### Focused endpoints (same data, smaller responses)
 

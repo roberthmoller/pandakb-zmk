@@ -6,17 +6,19 @@
 	const activeId = $derived(boardState.holdLayerId ?? boardState.activeLayerId);
 </script>
 
-<div class="flex flex-wrap gap-1" role="tablist" aria-label="Layers">
-	{#each layers as layer (layer.id)}
-		<Button
-			type="button"
-			size="sm"
-			variant={activeId === layer.id ? 'default' : 'ghost'}
-			role="tab"
-			aria-selected={activeId === layer.id}
-			onclick={() => boardState.setLayer(layer.id)}
-		>
-			{layer.name}
-		</Button>
-	{/each}
+<div class="surface-panel inline-flex max-w-full" role="tablist" aria-label="Layers">
+	<div class="surface-panel-inner flex flex-wrap gap-1 p-1">
+		{#each layers as layer (layer.id)}
+			<Button
+				type="button"
+				size="sm"
+				variant={activeId === layer.id ? 'default' : 'ghost'}
+				role="tab"
+				aria-selected={activeId === layer.id}
+				onclick={() => boardState.setLayer(layer.id)}
+			>
+				{layer.name}
+			</Button>
+		{/each}
+	</div>
 </div>

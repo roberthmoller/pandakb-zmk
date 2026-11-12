@@ -3,7 +3,7 @@
 </script>
 
 <div class="flex min-h-svh flex-col">
-	<main class="mx-auto flex w-[min(900px,calc(100%-1.5rem))] flex-1 flex-col py-8">
+	<main class="mx-auto flex w-[min(560px,calc(100%-2rem))] flex-1 flex-col px-2 py-10 md:py-16">
 		<FlashFlow />
 	</main>
 </div>

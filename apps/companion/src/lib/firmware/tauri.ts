@@ -26,8 +26,15 @@ export async function westUpdate(westRoot: string): Promise<void> {
 	return invoke('firmware_west_update', { westRoot });
 }
 
-export async function buildFirmware(westRoot: string, updateFirst: boolean): Promise<void> {
-	return invoke('firmware_build', { westRoot, updateFirst });
+export async function buildFirmware(
+	westRoot: string,
+	opts: { updateFirst?: boolean; force?: boolean } = {}
+): Promise<void> {
+	return invoke('firmware_build', {
+		westRoot,
+		updateFirst: opts.updateFirst ?? false,
+		force: opts.force ?? false
+	});
 }
 
 export async function flashHalf(half: 'left' | 'right', westRoot: string): Promise<FlashResult> {
@@ -38,6 +45,11 @@ export async function waitBootloader(timeoutSecs = 90): Promise<boolean> {
 	return invoke<boolean>('firmware_wait_bootloader', { timeoutSecs });
 }
 
+/** Soft-enter UF2 via Raw HID 0x30. Left must be on USB with companion firmware. */
+export async function enterBootloader(half: 'left' | 'right'): Promise<void> {
+	return invoke('companion_enter_bootloader', { half });
+}
+
 export async function onFirmwareLog(handler: (line: string) => void): Promise<UnlistenFn> {
 	return listen<string>('firmware://log', (event) => handler(event.payload));
 }
@@ -46,12 +58,10 @@ export async function onFirmwareDone(handler: (kind: string) => void): Promise<U
 	return listen<string>('firmware://done', (event) => handler(event.payload));
 }
 
-/** Read `config/Lily58.keymap` from the detected pandakb-zmk repo. */
 export async function getFirmwareKeymap(): Promise<KeymapFile> {
 	return invoke<KeymapFile>('firmware_keymap_get');
 }
 
-/** Persist companion edits back to `config/Lily58.keymap`. */
 export async function setFirmwareKeymap(contents: string): Promise<KeymapFile> {
 	return invoke<KeymapFile>('firmware_keymap_set', { contents });
 }

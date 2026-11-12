@@ -82,16 +82,16 @@
         lower_layer {
             display-name = "Lower";
 
-            // Symbols + media. Hold with RAISE for ADJUST.
+            // Symbols + sticky layer toggles. Hold with RAISE for ADJUST.
             // ------------------------------------------------------------------------------------------------------------
-            // |       |     |     |      |      |      |                   | prev | pause | next  | mute | vol-  | vol+  |
+            // |       |     |     |      |      |      |                   | WOW  | LOL   |       |      |       | BASE  |
             // |   `   |  !  |  @  |  #   |  $   |  %   |                   |  ^   |  &    |  *    |  (   |   )   |   ~   |
             // |       |  _  |  +  |  {   |  }   |  |   |                   |  -   |  =    |  [    |  ]   |   \   |       |
             // |EXTPWR | ON  | OFF | TOG  |      |      |        |  |       |      |       |       |      |       |       |
             //                     |      |      |      |        |  |       |      |       |       |
 
             bindings = <
-&trans             &kp C_BRI_DEC     &kp C_BRI_UP       &new_macro         &trans      &trans                        &kp C_PREVIOUS  &kp C_PLAY_PAUSE  &kp C_NEXT  &kp K_MUTE  &kp C_VOL_DN  &kp C_VOL_UP
+&trans             &trans            &trans             &trans             &trans      &trans                        &to WOW         &to LOL           &trans      &trans      &trans        &to BASE
 &kp GRAVE          &kp EXCL          &kp AT             &kp HASH           &kp DOLLAR  &kp PRCNT                     &kp CARET       &kp AMPS          &kp ASTRK   &kp LPAR    &kp RPAR      &kp TILDE
 &trans             &kp UNDER         &kp PLUS           &kp LBRC           &kp RBRC    &kp PIPE                      &kp MINUS       &kp EQUAL         &kp LBKT    &kp RBKT    &kp BSLH      &trans
 &ext_power EP_TOG  &ext_power EP_ON  &ext_power EP_OFF  &ext_power EP_TOG  &trans      &trans     &trans    &trans   &trans          &trans            &trans      &trans      &trans        &trans
@@ -104,20 +104,20 @@
         raise_layer {
             display-name = "Raise";
 
-            // F-keys + navigation. Hold with LOWER for ADJUST.
+            // macOS actions + F-keys + navigation. Hold with LOWER for ADJUST.
             // ------------------------------------------------------------------------------------------------------------
-            // |       |     |     |      |      |      |                   |      |       |       |      |       |       |
+            // |       | bri-| bri+| macro|      |      |                   | prev | pause | next  | mute | vol-  | vol+  |
             // |  F1   | F2  | F3  | F4   | F5   | F6   |                   | F7   | F8    | F9    | F10  | F11   | F12   |
             // |       |     |     |      |      |      |                   | LEFT | DOWN  | UP    | RGHT | HOME  | END   |
             // |       |     |     |      |      |      |        |  |       |      | PGUP  | PGDN  | INS  | DEL   |       |
             //                     |      |      |      |        |  |       |      |       |       |
 
             bindings = <
-&trans  &trans  &trans  &trans  &trans  &trans                     &trans    &trans      &trans     &trans     &trans    &trans
-&kp F1  &kp F2  &kp F3  &kp F4  &kp F5  &kp F6                     &kp F7    &kp F8      &kp F9     &kp F10    &kp F11   &kp F12
-&trans  &trans  &trans  &trans  &trans  &trans                     &kp LEFT  &kp DOWN    &kp UP     &kp RIGHT  &kp HOME  &kp END
-&trans  &trans  &trans  &trans  &trans  &trans  &trans    &trans   &trans    &kp PG_UP   &kp PG_DN  &kp INS    &kp DEL   &trans
-                        &trans  &trans  &trans  &trans    &kp RET  &trans    &kp DELETE  &trans
+&trans  &kp C_BRI_DEC  &kp C_BRI_UP  &new_macro  &trans  &trans                     &kp C_PREVIOUS  &kp C_PLAY_PAUSE  &kp C_NEXT  &kp K_MUTE  &kp C_VOL_DN  &kp C_VOL_UP
+&kp F1  &kp F2         &kp F3        &kp F4      &kp F5  &kp F6                     &kp F7          &kp F8            &kp F9      &kp F10     &kp F11      &kp F12
+&trans  &trans         &trans        &trans      &trans  &trans                     &kp LEFT        &kp DOWN          &kp UP      &kp RIGHT   &kp HOME     &kp END
+&trans  &trans         &trans        &trans      &trans  &trans  &trans    &trans   &trans          &kp PG_UP         &kp PG_DN   &kp INS     &kp DEL      &trans
+                                       &trans    &trans  &trans  &trans    &kp RET  &trans          &kp DELETE        &trans
             >;
 
             sensor-bindings =

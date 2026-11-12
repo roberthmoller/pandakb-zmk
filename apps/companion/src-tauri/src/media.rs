@@ -13,7 +13,8 @@ pub fn poll_media() -> Widget {
     }
 }
 
-fn system_volume_percent() -> u8 {
+/// Output volume only (cheap path for change detection).
+pub fn system_volume_percent() -> u8 {
     let output = Command::new("osascript")
         .args(["-e", "output volume of (get volume settings)"])
         .output();

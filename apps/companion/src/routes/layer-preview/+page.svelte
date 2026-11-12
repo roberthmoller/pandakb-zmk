@@ -7,13 +7,29 @@
 	import { onMount } from 'svelte';
 
 	type PreviewEvent = { show: boolean; layer: number };
+	type KeyMatrixEvent = { pressed: number[] };
 
 	let visible = $state(false);
 	let layerName = $state('Layer');
 	let ready = $state(false);
+	let hint = $state('Release the layer key to dismiss');
+	/** Last KEY_MATRIX — restored after keymap reload (applyLayers clears presses). */
+	let lastMatrix: number[] = [];
+
+	function hintForLayer(id: string | undefined): string {
+		switch (id) {
+			case 'adjust':
+				return 'Release Lower or Raise to dismiss';
+			case 'wow':
+			case 'lol':
+				return 'Switch to Base to dismiss';
+			default:
+				return 'Release the layer key to dismiss';
+		}
+	}
 
 	onMount(() => {
-		let unlisten: (() => void) | undefined;
+		const unlisteners: Array<() => void> = [];
 
 		void (async () => {
 			if (isTauri()) {
@@ -24,27 +40,41 @@
 			}
 
 			try {
-				unlisten = await listen<PreviewEvent>('companion://layer-preview', (event) => {
-					const { show, layer } = event.payload;
-					void (async () => {
-						if (show) {
-							// Re-read local firmware so overlay matches latest edits.
-							if (isTauri()) await loadFirmwareKeymap();
-							boardState.setFirmwarePreview(layer);
-							layerName = boardState.activeLayer?.name ?? `Layer ${layer}`;
-							visible = true;
-						} else {
-							boardState.setFirmwarePreview(null);
-							visible = false;
-						}
-					})();
-				});
+				unlisteners.push(
+					await listen<PreviewEvent>('companion://layer-preview', (event) => {
+						const { show, layer } = event.payload;
+						void (async () => {
+							if (show) {
+								// Re-read local firmware so overlay matches latest edits.
+								if (isTauri()) await loadFirmwareKeymap();
+								boardState.setFirmwarePreview(layer);
+								boardState.setPressedFromMatrix(lastMatrix);
+								layerName = boardState.activeLayer?.name ?? `Layer ${layer}`;
+								hint = hintForLayer(boardState.activeLayer?.id);
+								visible = true;
+							} else {
+								lastMatrix = [];
+								boardState.setFirmwarePreview(null);
+								visible = false;
+							}
+						})();
+					})
+				);
+
+				unlisteners.push(
+					await listen<KeyMatrixEvent>('companion://key-matrix', (event) => {
+						lastMatrix = event.payload.pressed ?? [];
+						boardState.setPressedFromMatrix(lastMatrix);
+					})
+				);
 			} catch {
 				// Browser / non-Tauri preview — stay idle.
 			}
 		})();
 
-		return () => unlisten?.();
+		return () => {
+			for (const off of unlisteners) off();
+		};
 	});
 </script>
 
@@ -53,7 +83,7 @@
 		<header class="header">
 			<span class="eyebrow">Layer preview</span>
 			<strong class="title">{layerName}</strong>
-			<span class="hint">Release the layer key to dismiss</span>
+			<span class="hint">{hint}</span>
 		</header>
 		<div class="board-wrap">
 			<KeyboardViz />

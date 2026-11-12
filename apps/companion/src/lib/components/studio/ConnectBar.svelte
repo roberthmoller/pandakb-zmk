@@ -24,32 +24,34 @@
 	);
 </script>
 
-<div class="flex flex-wrap items-center gap-3 rounded-lg bg-[#171717] px-4 py-3">
-	{#if studioConnection.status === 'connected'}
-		<Badge variant="secondary">{studioConnection.deviceName}</Badge>
-		<span class="font-mono text-xs uppercase tracking-widest text-muted-foreground">
-			{lockLabel}
-			{#if liveKeymap.unsaved}
-				· unsaved
-			{/if}
-		</span>
-		<Button size="sm" variant="outline" onclick={() => liveKeymap.refresh()} disabled={liveKeymap.busy}>
-			Refresh
-		</Button>
-		<Button size="sm" variant="outline" onclick={disconnect}>Disconnect</Button>
-	{:else}
-		<span class="text-sm text-muted-foreground">
-			Plug the <strong class="text-foreground">left/central</strong> half over USB (data cable).
-		</span>
-		<Button
-			size="sm"
-			onclick={connect}
-			disabled={studioConnection.status === 'connecting'}
-		>
-			{studioConnection.status === 'connecting' ? 'Connecting…' : 'Connect USB'}
-		</Button>
-	{/if}
-	{#if studioConnection.error}
-		<span class="w-full text-sm text-destructive">{studioConnection.error}</span>
-	{/if}
+<div class="surface-panel">
+	<div class="surface-panel-inner flex flex-wrap items-center gap-3 px-4 py-3">
+		{#if studioConnection.status === 'connected'}
+			<Badge>{studioConnection.deviceName}</Badge>
+			<span class="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-muted-foreground">
+				{lockLabel}
+				{#if liveKeymap.unsaved}
+					· unsaved
+				{/if}
+			</span>
+			<Button size="sm" variant="outline" onclick={() => liveKeymap.refresh()} disabled={liveKeymap.busy}>
+				Refresh
+			</Button>
+			<Button size="sm" variant="outline" onclick={disconnect}>Disconnect</Button>
+		{:else}
+			<span class="text-sm text-muted-foreground">
+				Plug the <strong class="text-foreground">left/central</strong> half over USB (data cable).
+			</span>
+			<Button
+				size="sm"
+				onclick={connect}
+				disabled={studioConnection.status === 'connecting'}
+			>
+				{studioConnection.status === 'connecting' ? 'Connecting…' : 'Connect USB'}
+			</Button>
+		{/if}
+		{#if studioConnection.error}
+			<span class="w-full text-sm text-destructive">{studioConnection.error}</span>
+		{/if}
+	</div>
 </div>

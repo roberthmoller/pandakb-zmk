@@ -6,23 +6,25 @@
 </script>
 
 <section class="space-y-6" aria-label="Firmware hub">
-	<div class="flex flex-wrap gap-1" role="tablist" aria-label="Firmware panels">
-		<Button
-			type="button"
-			size="sm"
-			variant={firmwareState.panel === 'live' ? 'default' : 'ghost'}
-			onclick={() => firmwareState.setPanel('live')}
-		>
-			Live
-		</Button>
-		<Button
-			type="button"
-			size="sm"
-			variant={firmwareState.panel === 'build' ? 'default' : 'ghost'}
-			onclick={() => firmwareState.setPanel('build')}
-		>
-			Build / Flash
-		</Button>
+	<div class="surface-panel inline-flex" role="tablist" aria-label="Firmware panels">
+		<div class="surface-panel-inner flex flex-wrap gap-1 p-1">
+			<Button
+				type="button"
+				size="sm"
+				variant={firmwareState.panel === 'live' ? 'default' : 'ghost'}
+				onclick={() => firmwareState.setPanel('live')}
+			>
+				Live
+			</Button>
+			<Button
+				type="button"
+				size="sm"
+				variant={firmwareState.panel === 'build' ? 'default' : 'ghost'}
+				onclick={() => firmwareState.setPanel('build')}
+			>
+				Build / Flash
+			</Button>
+		</div>
 	</div>
 
 	{#if firmwareState.panel === 'live'}

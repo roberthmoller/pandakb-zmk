@@ -15,15 +15,16 @@ config PANDAKB_APP_LAYER_RAW_HID
 	  Listen for Raw HID reports on the central and apply set_media.
 
 config PANDAKB_GAME_BADGE_SCREEN
-	bool "Custom status screen: media + battery"
+	bool "Custom status screen: buddy + widgets"
 	default n
 	depends on ZMK_DISPLAY
 	select LV_USE_LABEL
+	select LV_USE_IMG
 	select LV_USE_CANVAS
 	select LV_FONT_MONTSERRAT_12
 	help
 	  Right OLED (portrait, -90° mount): battery + link at top,
-	  play/pause and volume below. Enable via the game_badge shield;
-	  do not select choice symbols here.
+	  animated buddy when idle, then media / LoL / IDE widgets.
+	  Enable via the game_badge shield; do not select choice symbols here.
 
 endif # PANDAKB_APP_LAYER
