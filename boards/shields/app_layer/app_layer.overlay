@@ -9,7 +9,7 @@
         badge: badge {
             compatible = "zmk,behavior-game-badge";
             #binding-cells = <2>;
-            display-name = "Game Badge";
+            display-name = "Media Status";
         };
     };
 };

@@ -2,118 +2,46 @@ import Combine
 import Foundation
 
 final class CompanionModel: ObservableObject {
-    @Published var autoEnabled = true
-    @Published var badge: GameBadge = .idle
-    @Published var status = GameStatus.badgeOnly(.idle)
-    @Published var layer: StickyLayer = .base
-    @Published var rules: [AppRule] = DefaultRules.all
-    @Published var lolLiveLine: String = "LoL live: —"
+    @Published var status = MediaStatus(playback: .stopped, volume: 0)
 
     let hid = HIDClient()
-    let focus = FocusMonitor()
-    let lol = LolLiveClient()
+    let media = MediaMonitor()
 
     private var bag = Set<AnyCancellable>()
-    private var focusBadge: GameBadge = .idle
-    private var lastStatusSentAt = Date.distantPast
-    /// Min interval between same-badge HID updates (LoL live stats). Badge changes send immediately.
-    private let minStatusInterval: TimeInterval = 5
+    private var lastSent = MediaStatus(playback: .stopped, volume: 255) // force first push
 
     func start() {
         hid.start()
-        focus.start()
-        lol.start()
+        media.start()
 
-        focus.$frontmostBundleId
-            .compactMap { $0 }
-            .removeDuplicates()
-            .sink { [weak self] bundleId in
-                self?.applyFocus(bundleId: bundleId)
+        media.$status
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] next in
+                self?.pushIfChanged(next)
             }
             .store(in: &bag)
 
-        lol.$status
-            .combineLatest(lol.$inGame)
+        hid.$connected
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] live, inGame in
-                self?.applyLolLive(live: live, inGame: inGame)
+            .sink { [weak self] connected in
+                guard let self, connected else { return }
+                // Resync when the keyboard reconnects.
+                self.lastSent = MediaStatus(playback: .stopped, volume: 255)
+                self.pushIfChanged(self.media.status)
             }
             .store(in: &bag)
     }
 
     func stop() {
-        lol.stop()
-        focus.stop()
+        media.stop()
         hid.stop()
         bag.removeAll()
     }
 
-    func applyFocus(bundleId: String) {
-        guard autoEnabled else { return }
-
-        if let rule = rules.first(where: { $0.bundleId == bundleId }) {
-            let nextBadge = GameBadge(rawValue: rule.badge) ?? .idle
-            focusBadge = nextBadge
-            if rule.autoLayer, let nextLayer = StickyLayer(rawValue: rule.layer) {
-                setLayer(nextLayer)
-            }
-            // Prefer live LoL stats when available and LoL is focused.
-            if nextBadge == .lol, let live = lol.status, lol.inGame {
-                pushStatus(live)
-            } else {
-                pushStatus(.badgeOnly(nextBadge))
-            }
-        } else {
-            focusBadge = .idle
-            pushStatus(.badgeOnly(.idle))
-            setLayer(.base)
-        }
-    }
-
-    private func applyLolLive(live: GameStatus?, inGame: Bool) {
-        if inGame, let live {
-            lolLiveLine = "LoL live: \(live.summary)"
-        } else {
-            lolLiveLine = "LoL live: not in game"
-        }
-
-        guard autoEnabled, focusBadge == .lol else { return }
-        if inGame, let live {
-            pushStatus(live)
-        } else if badge == .lol {
-            pushStatus(.badgeOnly(.lol))
-        }
-    }
-
-    func setBadge(_ badge: GameBadge) {
-        focusBadge = badge
-        if badge == .lol, let live = lol.status, lol.inGame {
-            pushStatus(live)
-        } else {
-            pushStatus(.badgeOnly(badge))
-        }
-    }
-
-    func setLayer(_ layer: StickyLayer) {
-        guard layer != self.layer else { return }
-        self.layer = layer
-        hid.setLayer(layer)
-    }
-
-    private func pushStatus(_ next: GameStatus) {
-        // Avoid HID spam when LoL stats are unchanged.
-        if next == status, badge == next.badge { return }
-
-        let badgeChanged = next.badge != badge
-        if !badgeChanged, Date().timeIntervalSince(lastStatusSentAt) < minStatusInterval {
-            // Keep UI in sync, but do not flood the keyboard/split link.
-            status = next
-            return
-        }
-
+    private func pushIfChanged(_ next: MediaStatus) {
         status = next
-        badge = next.badge
-        lastStatusSentAt = Date()
-        hid.setStatus(next)
+        guard next != lastSent else { return }
+        lastSent = next
+        hid.setMedia(next)
     }
 }

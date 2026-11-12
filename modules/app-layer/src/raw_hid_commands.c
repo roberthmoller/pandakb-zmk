@@ -10,7 +10,6 @@
 
 #include <zmk/behavior.h>
 #include <zmk/event_manager.h>
-#include <zmk/keymap.h>
 
 #include <raw_hid/events.h>
 
@@ -19,7 +18,7 @@
 
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
-static int invoke_badge_status(const struct pandakb_badge_status *status) {
+static int invoke_media_status(const struct pandakb_badge_status *status) {
 #if DT_NODE_EXISTS(DT_NODELABEL(badge))
     struct zmk_behavior_binding binding = {
         .behavior_dev = DEVICE_DT_NAME(DT_NODELABEL(badge)),
@@ -41,51 +40,32 @@ static int invoke_badge_status(const struct pandakb_badge_status *status) {
 #endif
 }
 
-static bool layer_allowed(uint8_t layer) {
-    return layer == PANDAKB_LAYER_BASE || layer == PANDAKB_LAYER_WOW || layer == PANDAKB_LAYER_LOL;
-}
-
-static void parse_set_badge(const uint8_t *data, uint8_t length) {
-    struct pandakb_badge_status status = {
-        .badge = data[1],
-    };
-
-    /* Optional stats: [2]=k [3]=d [4]=a [5]=cs_lo [6]=cs_hi [7]=level [8]=flags */
-    if (length >= 9) {
-        status.kills = data[2];
-        status.deaths = data[3];
-        status.assists = data[4];
-        status.cs = (uint16_t)data[5] | ((uint16_t)data[6] << 8);
-        status.level = data[7];
-        status.flags = data[8];
+static void parse_set_media(const uint8_t *data, uint8_t length) {
+    if (length < 3) {
+        return;
     }
 
-    LOG_DBG("set_badge %u flags=0x%02x", status.badge, status.flags);
-    invoke_badge_status(&status);
+    struct pandakb_badge_status status = {
+        .state = data[1],
+        .volume = data[2] > 100 ? 100 : data[2],
+    };
+
+    LOG_DBG("set_media state=%u vol=%u", status.state, status.volume);
+    invoke_media_status(&status);
 }
 
 static int on_raw_hid_received(const zmk_event_t *eh) {
     const struct raw_hid_received_event *ev = as_raw_hid_received_event(eh);
-    if (ev == NULL || ev->data == NULL || ev->length < 2) {
+    if (ev == NULL || ev->data == NULL || ev->length < 1) {
         return ZMK_EV_EVENT_BUBBLE;
     }
 
-    const uint8_t cmd = ev->data[0];
-    const uint8_t arg = ev->data[1];
-
-    switch (cmd) {
-    case PANDAKB_HID_CMD_LAYER_TO:
-        if (!layer_allowed(arg)) {
-            LOG_WRN("reject layer_to %u (sticky Base/WoW/LoL only)", arg);
-            break;
-        }
-        LOG_DBG("layer_to %u", arg);
-        zmk_keymap_layer_to(arg);
-        break;
-    case PANDAKB_HID_CMD_SET_BADGE:
-        parse_set_badge(ev->data, ev->length);
+    switch (ev->data[0]) {
+    case PANDAKB_HID_CMD_SET_MEDIA:
+        parse_set_media(ev->data, ev->length);
         break;
     default:
+        /* Ignore legacy layer/badge commands — companion is media-only now. */
         break;
     }
 

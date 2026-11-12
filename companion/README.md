@@ -2,27 +2,36 @@
 
 Menu bar app that:
 
-1. Watches the frontmost app
-2. Drives the **right OLED**: static buddy when idle; game icon (+ live stats) for WoW/LoL
-3. Optionally sticky-switches keyboard layers (`Base` / `WoW` / `LoL`)
+1. Pushes **media play/pause + system volume** to the right OLED over Raw HID
+2. Hosts **ZmkWiz** (Keymap Wizard) — Lily58 learn / trainer / test / firmware UI
 
-Badge and layer are independent. Left OLED keeps its normal `nice_oled` layout (including layer name).
-
-## Live stats
-
-While League of Legends is in a match, the companion polls the local Live Client API
-(`https://127.0.0.1:2999`) and pushes K/D/A, CS, and level to the keyboard.
-
-WoW currently shows the game icon only (no public live API).
+No game layers, LoL stats, or focus switching — those paths overloaded the split link.
 
 ## Run
 
+Needs **Node.js ≥ 22.17** (wizard UI; `.nvmrc` → 22.22.0) and Swift 5.9+.
+
 ```bash
-cd companion/PandaKBCompanion
+# once — install ZmkWiz deps (also auto-runs on first Open Keymap Wizard)
+cd companion/zmkwiz
+npm run install:deps
+
+cd ../PandaKBCompanion
 swift run
 ```
 
-Grant **Accessibility** if macOS prompts (needed for reliable focus observation in some setups).
+### Keymap Wizard
+
+From the menu bar `KB` menu:
+
+| Item | Action |
+|------|--------|
+| **Open Keymap Wizard** | Starts local Vite on `127.0.0.1:17301` and opens a WKWebView window |
+| **Open Wizard in Browser** | Same server, opens your default browser (better for Web Serial / Firmware Live) |
+
+Override the wizard root with `PANDAKB_ZMKWIZ=/path/to/zmkwiz` if needed.
+
+Visual `.keymap` editing (Keymap Editor–style) is next; for now load maps in Learn/Trainer and use Firmware Live / Clipboard workflows.
 
 ## Firmware
 
@@ -35,14 +44,19 @@ After enabling Raw HID for the first time, re-pair Bluetooth if the keyboard was
 
 Plug in USB (or use BLE HID) so the companion can open the Raw HID interface (`0xFF60` / `0x61`).
 
-## Defaults
+## Behavior
 
-| App bundle ID | Badge | Auto layer |
-|---------------|-------|------------|
-| `com.blizzard.worldofwarcraft` | WoW | WoW |
-| `com.blizzard.worldofwarcraft.classic` | WoW | WoW |
-| `com.riotgames.LeagueofLegends.GameClient` | LoL | LoL |
-| `com.riotgames.LeagueofLegends.LeagueClient` | LoL | off |
-| anything else | Buddy | Base |
+- Polls now-playing via MediaRemote and output volume about every 2s
+- Sends HID only when play state or volume **changes**
+- Right OLED shows play/pause/stop, volume, battery, and link
 
 Protocol details: [../modules/app-layer/PROTOCOL.md](../modules/app-layer/PROTOCOL.md)
+
+## Layout
+
+```
+companion/
+  PandaKBCompanion/   # Swift menu bar + HID + wizard window
+  zmkwiz/             # ZmkWiz (SvelteKit) hosted by the companion
+  scripts/
+```

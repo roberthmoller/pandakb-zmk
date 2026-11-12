@@ -34,9 +34,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func refreshTitle() {
         guard let button = statusItem?.button else { return }
-        let badge = model.badge == .idle ? "·" : model.status.summary
         let link = model.hid.connected ? "" : "!"
-        button.title = "KB \(badge)\(link)"
+        button.title = "KB \(model.status.summary)\(link)"
         rebuildMenu()
     }
 
@@ -57,59 +56,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             menu.addItem(errorItem)
         }
 
-        let focusName = model.focus.frontmostName ?? "—"
-        let focusItem = NSMenuItem(title: "Focus: \(focusName)", action: nil, keyEquivalent: "")
-        focusItem.isEnabled = false
-        menu.addItem(focusItem)
-
-        let live = NSMenuItem(title: model.lolLiveLine, action: nil, keyEquivalent: "")
-        live.isEnabled = false
-        menu.addItem(live)
+        let media = NSMenuItem(title: "Media: \(model.status.summary)", action: nil, keyEquivalent: "")
+        media.isEnabled = false
+        menu.addItem(media)
 
         menu.addItem(.separator())
 
-        let auto = NSMenuItem(
-            title: "Auto switch from focus",
-            action: #selector(toggleAuto),
-            keyEquivalent: "a"
+        let wizard = NSMenuItem(
+            title: "Open Keymap Wizard",
+            action: #selector(openWizard),
+            keyEquivalent: "w"
         )
-        auto.state = model.autoEnabled ? .on : .off
-        auto.target = self
-        menu.addItem(auto)
+        wizard.target = self
+        menu.addItem(wizard)
 
-        menu.addItem(.separator())
-
-        let badgeMenu = NSMenuItem(title: "Badge", action: nil, keyEquivalent: "")
-        let badgeSub = NSMenu()
-        for badge in GameBadge.allCases {
-            let item = NSMenuItem(
-                title: badge.title,
-                action: #selector(selectBadge(_:)),
-                keyEquivalent: ""
-            )
-            item.representedObject = badge.rawValue
-            item.state = model.badge == badge ? .on : .off
-            item.target = self
-            badgeSub.addItem(item)
-        }
-        badgeMenu.submenu = badgeSub
-        menu.addItem(badgeMenu)
-
-        let layerMenu = NSMenuItem(title: "Layer", action: nil, keyEquivalent: "")
-        let layerSub = NSMenu()
-        for layer in StickyLayer.allCases {
-            let item = NSMenuItem(
-                title: layer.title,
-                action: #selector(selectLayer(_:)),
-                keyEquivalent: ""
-            )
-            item.representedObject = layer.rawValue
-            item.state = model.layer == layer ? .on : .off
-            item.target = self
-            layerSub.addItem(item)
-        }
-        layerMenu.submenu = layerSub
-        menu.addItem(layerMenu)
+        let wizardBrowser = NSMenuItem(
+            title: "Open Wizard in Browser",
+            action: #selector(openWizardInBrowser),
+            keyEquivalent: "W"
+        )
+        wizardBrowser.target = self
+        menu.addItem(wizardBrowser)
 
         menu.addItem(.separator())
         let quit = NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "q")
@@ -119,26 +86,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem?.menu = menu
     }
 
-    @objc private func toggleAuto() {
-        model.autoEnabled.toggle()
-        rebuildMenu()
+    @objc private func openWizard() {
+        WizardWindowController.shared.open()
     }
 
-    @objc private func selectBadge(_ sender: NSMenuItem) {
-        guard let raw = sender.representedObject as? UInt8,
-              let badge = GameBadge(rawValue: raw) else { return }
-        model.setBadge(badge)
-        rebuildMenu()
-    }
-
-    @objc private func selectLayer(_ sender: NSMenuItem) {
-        guard let raw = sender.representedObject as? UInt8,
-              let layer = StickyLayer(rawValue: raw) else { return }
-        model.setLayer(layer)
-        rebuildMenu()
+    @objc private func openWizardInBrowser() {
+        WizardWindowController.shared.openInBrowser()
     }
 
     @objc private func quitApp() {
+        WizardWindowController.shared.close()
+        WizardServer.shared.stop()
         model.stop()
         NSApp.terminate(nil)
     }

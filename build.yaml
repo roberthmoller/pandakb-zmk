@@ -1,7 +1,7 @@
 include:
 # Lily58 without dongle 不带dongle的Lily58
   # Lily58 with oled display(with nice_oled module) 适用于带oled的Lily58
-  # Left: nice_oled status + Raw HID companion. Right: game badge OLED.
+  # Left: nice_oled status + Raw HID companion. Right: media status OLED.
   - board: nice_nano_v2 
     shield: Lily58_L nice_oled raw_hid_adapter app_layer
     snippet: studio-rpc-usb-uart 

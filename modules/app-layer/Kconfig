@@ -1,29 +1,29 @@
 menuconfig PANDAKB_APP_LAYER
-	bool "PandaKB app companion (Raw HID layer + badge)"
+	bool "PandaKB app companion (Raw HID media status)"
 	default n
 	help
-	  Accept host Raw HID commands to sticky-switch layers and set a
-	  game badge that can be shown on the peripheral OLED.
+	  Accept host Raw HID commands to push media play/pause and
+	  volume to the peripheral OLED.
 
 if PANDAKB_APP_LAYER
 
 config PANDAKB_APP_LAYER_RAW_HID
-	bool "Handle Raw HID layer/badge commands"
+	bool "Handle Raw HID media commands"
 	default y
 	depends on RAW_HID
 	help
-	  Listen for Raw HID reports on the central and apply layer_to /
-	  set_badge commands.
+	  Listen for Raw HID reports on the central and apply set_media.
 
 config PANDAKB_GAME_BADGE_SCREEN
-	bool "Custom status screen: buddy + game badge"
+	bool "Custom status screen: media + battery"
 	default n
 	depends on ZMK_DISPLAY
 	select LV_USE_LABEL
-	select LV_USE_IMG
+	select LV_USE_CANVAS
+	select LV_FONT_MONTSERRAT_12
 	help
-	  Right OLED: static buddy when idle; game icon + optional
-	  live stats (KDA/CS) when a game badge is active.
-	  Enable via the game_badge shield; do not select choice symbols here.
+	  Right OLED (portrait, -90° mount): battery + link at top,
+	  play/pause and volume below. Enable via the game_badge shield;
+	  do not select choice symbols here.
 
 endif # PANDAKB_APP_LAYER

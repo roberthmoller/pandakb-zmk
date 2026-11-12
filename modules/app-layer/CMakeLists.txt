@@ -7,11 +7,6 @@ if(CONFIG_PANDAKB_APP_LAYER)
   zephyr_library_sources(src/behavior_game_badge.c)
   zephyr_library_sources_ifdef(CONFIG_PANDAKB_APP_LAYER_RAW_HID src/raw_hid_commands.c)
   if(CONFIG_PANDAKB_GAME_BADGE_SCREEN)
-    zephyr_library_sources(
-      src/badge_screen.c
-      src/art/buddy_0.c
-      src/art/icon_wow.c
-      src/art/icon_lol.c
-    )
+    zephyr_library_sources(src/badge_screen.c)
   endif()
 endif()

@@ -1,11 +1,9 @@
-# pandakb-app-layer
+# PandaKB app-layer module
 
-Firmware pieces for the PandaKB macOS companion. Built via the repo-root
-`zephyr/module.yml` (`ZMK_EXTRA_MODULES` in CI), not as a separate west project.
+Raw HID media status for the Lily58 OLED build:
 
-- Raw HID commands on the central half (`layer_to`, `set_badge` with optional stats)
-- Global-locality `&badge` behavior so the peripheral OLED syncs badge + packed stats
-- Right OLED: static buddy (idle), game icons + KDA/CS when present
-- Shields live in `boards/shields/app_layer` and `boards/shields/game_badge`
+- Host sends `SET_MEDIA` (play/pause/stop + volume 0–100)
+- Central applies it and syncs to the right half via a global-locality behavior
+- Right OLED: battery + link, then media widgets (no animation)
 
-See [PROTOCOL.md](PROTOCOL.md).
+Shields live in `boards/shields/app_layer` and `boards/shields/game_badge`.

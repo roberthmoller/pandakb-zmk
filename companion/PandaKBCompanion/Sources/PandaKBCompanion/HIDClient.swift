@@ -48,25 +48,11 @@ final class HIDClient: ObservableObject {
         connected = false
     }
 
-    func setLayer(_ layer: StickyLayer) {
-        send(bytes: [PandaKBHID.cmdLayerTo, layer.rawValue])
-    }
-
-    func setBadge(_ badge: GameBadge) {
-        setStatus(.badgeOnly(badge))
-    }
-
-    func setStatus(_ status: GameStatus) {
+    func setMedia(_ status: MediaStatus) {
         send(bytes: [
-            PandaKBHID.cmdSetBadge,
-            status.badge.rawValue,
-            status.kills,
-            status.deaths,
-            status.assists,
-            UInt8(status.cs & 0xff),
-            UInt8((status.cs >> 8) & 0xff),
-            status.level,
-            status.statsValid ? PandaKBHID.statusFlagValid : 0,
+            PandaKBHID.cmdSetMedia,
+            status.playback.rawValue,
+            status.volume,
         ])
     }
 
