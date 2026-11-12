@@ -1,0 +1,7 @@
+file_format: "$ZMK_CONFIG_YML_SCHEMA"
+id: bare_right
+name: PandaKB Bare Right (no OLED/RGB)
+type: shield
+url: https://github.com/roberthmoller/pandakb-zmk
+requires: []
+features: []

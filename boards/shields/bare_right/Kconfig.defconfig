@@ -1,0 +1,9 @@
+if SHIELD_BARE_RIGHT
+
+config ZMK_DISPLAY
+	default n
+
+config ZMK_RGB_UNDERGLOW
+	default n
+
+endif # SHIELD_BARE_RIGHT

@@ -1,13 +1,19 @@
 include:
 # Lily58 without dongle 不带dongle的Lily58
   # Lily58 with oled display(with nice_oled module) 适用于带oled的Lily58
-  # Left/right: stock nice_oled only (Raw HID companion disabled for stability).
+  # Left: nice_oled. Right: bare (no OLED/RGB) to isolate bottom-row dropouts.
   - board: nice_nano_v2 
     shield: Lily58_L nice_oled
     snippet: studio-rpc-usb-uart 
     artifact-name: Lily58_left_oled
   - board: nice_nano_v2
+    shield: Lily58_R bare_right
+    cmake-args: -DCONFIG_ZMK_DISPLAY=n -DCONFIG_ZMK_RGB_UNDERGLOW=n -DCONFIG_WS2812_STRIP=n -DCONFIG_EC11=n
+    artifact-name: Lily58_right_bare
+  # Right with OLED but RGB off (try after bare half is stable)
+  - board: nice_nano_v2
     shield: Lily58_R nice_oled
+    cmake-args: -DCONFIG_ZMK_RGB_UNDERGLOW=n -DCONFIG_WS2812_STRIP=n
     artifact-name: Lily58_right_oled
   # Lily58 with nice!view display(with nice_view_custom module) 适用于带nice_view的Lily58
   - board: nice_nano_v2
